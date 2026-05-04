@@ -81,7 +81,7 @@ function searchLocally(
   return results.slice(0, 20)
 }
 
-function ResultItem({ result, onSelect }: { result: SearchResult; onSelect: (char: string) => void }) {
+function ResultItem({ result, onSelect }: { result: SearchResult; onSelect: (char: string, type: 'curated' | 'external') => void }) {
   const char = result.entry.char
   const sv = result.type === 'curated'
     ? result.entry.sino_vietnamese
@@ -90,7 +90,7 @@ function ResultItem({ result, onSelect }: { result: SearchResult; onSelect: (cha
 
   return (
     <button
-      onClick={() => onSelect(char)}
+      onClick={() => onSelect(char, result.type)}
       className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted/50 transition-colors text-left"
     >
       <span className="text-2xl w-10 text-center leading-none shrink-0">{char}</span>
@@ -146,8 +146,11 @@ export function SearchDialog({ open, onOpenChange }: Props) {
     }
   }, [open, mode])
 
-  const handleSelect = useCallback((char: string) => {
-    router.push(`/char/${encodeURIComponent(char)}`)
+  const handleSelect = useCallback((char: string, type: 'curated' | 'external') => {
+    const url = type === 'curated'
+      ? `/char/${encodeURIComponent(char)}`
+      : `/char?c=${encodeURIComponent(char)}`
+    router.push(url)
     onOpenChange(false)
     setQuery('')
     setResults([])
@@ -221,7 +224,7 @@ export function SearchDialog({ open, onOpenChange }: Props) {
               <ul>
                 {results.map((r, i) => (
                   <li key={`${r.entry.char}-${i}`}>
-                    <ResultItem result={r} onSelect={handleSelect} />
+                    <ResultItem result={r} onSelect={(char, type) => handleSelect(char, type)} />
                   </li>
                 ))}
               </ul>
