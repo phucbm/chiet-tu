@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { MagnifyingGlass } from '@phosphor-icons/react'
 import { useRouter } from 'next/navigation'
 import { ToolBar } from '@/components/shell/ToolBar'
@@ -8,17 +8,19 @@ import { AppFooter } from '@/components/shell/AppFooter'
 import { CharCard } from '@/components/CharCard'
 import { useSearchSheet } from '@/components/search/SearchSheet'
 import { useCharStore } from '@/store/useCharStore'
+import { getCurated } from '@/lib/client-dictionary'
 import type { CharEntry } from '@/lib/types'
 import type { ControlButton } from '@/components/shell/controls'
 
-interface Props {
-  chars: CharEntry[]
-}
-
-export function HomeClient({ chars }: Props) {
+export function HomeClient() {
   const router = useRouter()
   const openSearch = useSearchSheet()
   const { chars: localChars } = useCharStore()
+  const [chars, setChars] = useState<CharEntry[]>([])
+
+  useEffect(() => {
+    getCurated().then(setChars).catch(() => {})
+  }, [])
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {

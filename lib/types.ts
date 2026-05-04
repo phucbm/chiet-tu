@@ -23,8 +23,9 @@ export interface CharEntry {
   tags: string[]
   contributor?: string
   sources: string[]
+  definitions_en?: string[]
   // runtime/local-only — not persisted in repo JSON files
-  source?: 'repo' | 'local'
+  source?: 'repo' | 'local' | 'dictionary'
   copiedFrom?: string
   createdAt?: number
   updatedAt?: number
@@ -36,6 +37,4 @@ export interface ExternalChar {
   source: 'kVietnamese'
 }
 
-export type SearchResult =
-  | { type: 'curated'; entry: CharEntry }
-  | { type: 'external'; entry: ExternalChar }
+export type SearchResult = { type: 'curated'; entry: CharEntry }

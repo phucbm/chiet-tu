@@ -10,15 +10,12 @@ import { ContributeSheet } from '@/components/contribute/ContributeSheet'
 import { useSearchSheet } from '@/components/search/SearchSheet'
 import { StrokeBox } from '@/components/StrokeBox'
 import { useCharStore } from '@/store/useCharStore'
-import type { CharEntry, ExternalChar } from '@/lib/types'
-import type { LexiconData } from '@/lib/lexicon'
+import type { CharEntry } from '@/lib/types'
 import type { ControlButton } from '@/components/shell/controls'
 
 interface Props {
   char: string
-  curated: CharEntry | null
-  external: ExternalChar | null
-  lexicon: LexiconData | null
+  initialData: CharEntry
 }
 
 function ClonePrompt({ onClone }: { onClone: () => void }) {
@@ -38,42 +35,15 @@ function ClonePrompt({ onClone }: { onClone: () => void }) {
   )
 }
 
-export function CharPageClient({ char, curated, external, lexicon }: Props) {
+export function CharPageClient({ char, initialData }: Props) {
   const router = useRouter()
   const { open } = useBottomSheet()
   const openSearch = useSearchSheet()
   const { findLocal, cloneFromRepo, cloneFromGen } = useCharStore()
 
   const localChar = findLocal(char)
+  const curated = initialData.source === 'repo' ? initialData : null
 
-  // Resolve display values: local > curated > lexicon
-  const sinoViet =
-    localChar?.sino_vietnamese ||
-    curated?.sino_vietnamese ||
-    external?.sino_vietnamese[0] ||
-    lexicon?.sino_vietnamese ||
-    ''
-  const pinyin = localChar?.pinyin || curated?.pinyin || lexicon?.pinyin || ''
-  const trad = localChar?.trad || curated?.trad || lexicon?.trad
-  const translationVi = localChar?.translation?.vi || curated?.translation?.vi || lexicon?.translation_vi
-  const etymNote = localChar?.etymology?.note || curated?.etymology?.note || lexicon?.etymology_note
-  const etymComponents = localChar?.etymology?.components?.length
-    ? localChar.etymology.components
-    : curated?.etymology?.components?.length
-    ? curated.etymology.components
-    : (lexicon?.etymology_components ?? [])
-  const examples = localChar?.etymology?.examples?.length
-    ? localChar.etymology.examples
-    : curated?.etymology?.examples ?? []
-  const related = localChar?.etymology?.related?.length
-    ? localChar.etymology.related
-    : curated?.etymology?.related?.length
-    ? curated.etymology.related
-    : (lexicon?.related ?? [])
-  const strokes = localChar?.strokes ?? curated?.strokes
-  const radical = localChar?.radical ?? curated?.radical
-
-  // Ctrl+K opens search
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
@@ -84,6 +54,20 @@ export function CharPageClient({ char, curated, external, lexicon }: Props) {
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [openSearch])
+
+  const entry = localChar ?? initialData
+
+  const sinoViet = entry.sino_vietnamese
+  const pinyin = entry.pinyin
+  const trad = entry.trad
+  const translationVi = entry.translation?.vi
+  const etymNote = entry.etymology?.note
+  const etymComponents = entry.etymology?.components ?? []
+  const examples = entry.etymology?.examples ?? []
+  const related = entry.etymology?.related ?? []
+  const strokes = entry.strokes
+  const radical = entry.radical
+  const definitionsEn = initialData.definitions_en
 
   function openEdit() {
     if (localChar) {
@@ -96,9 +80,9 @@ export function CharPageClient({ char, curated, external, lexicon }: Props) {
           let clone: CharEntry
           if (curated) {
             clone = cloneFromRepo(curated)
-          } else if (external) {
-            clone = cloneFromGen(external)
-          } else return
+          } else {
+            clone = cloneFromGen({ char, sino_vietnamese: [sinoViet], source: 'kVietnamese' })
+          }
           open(<EditSheet char={clone} />, `Chỉnh sửa ${char}`)
         }}
       />,
@@ -115,8 +99,8 @@ export function CharPageClient({ char, curated, external, lexicon }: Props) {
     ...(localChar
       ? [{ icon: <GitPullRequest size={20} />, label: 'Contribute', position: 'right' as const, onClick: openContribute }]
       : []),
-    { icon: <PencilSimple size={20} />, label: 'Edit', position: 'right', onClick: openEdit },
-    { icon: <MagnifyingGlass size={20} />, label: 'Search', position: 'right', onClick: openSearch },
+    { icon: <PencilSimple size={20} />, label: 'Edit', position: 'right' as const, onClick: openEdit },
+    { icon: <MagnifyingGlass size={20} />, label: 'Search', position: 'right' as const, onClick: openSearch },
   ]
 
   const buttons: ControlButton[] = [
@@ -126,12 +110,10 @@ export function CharPageClient({ char, curated, external, lexicon }: Props) {
 
   return (
     <div className="flex-1 flex flex-col relative">
-      {/* Header — branding only */}
       <header className="shrink-0 px-5 pt-4 pb-2">
         <span className="text-sm font-medium text-[#888]">Chiết Tự</span>
       </header>
 
-      {/* Content */}
       <div className="flex-1 overflow-y-auto px-5 pb-28 space-y-6">
         {/* Hero */}
         <div className="flex flex-col items-center gap-2 pt-2">
@@ -152,7 +134,7 @@ export function CharPageClient({ char, curated, external, lexicon }: Props) {
             {strokes && <span>{strokes} nét</span>}
           </div>
           <div className="flex items-center gap-1.5">
-            {!curated && !localChar && (
+            {initialData.source === 'dictionary' && !localChar && (
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#F0F0EC] text-[#888] font-medium">external</span>
             )}
             {localChar && (
@@ -248,11 +230,11 @@ export function CharPageClient({ char, curated, external, lexicon }: Props) {
           </section>
         )}
 
-        {/* English definitions from lexicon */}
-        {lexicon?.definitions_en?.length && (
+        {/* English definitions */}
+        {definitionsEn?.length && (
           <section className="space-y-1.5">
             <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">English</h2>
-            <p className="text-sm text-[#666]">{lexicon.definitions_en.slice(0, 3).join(' · ')}</p>
+            <p className="text-sm text-[#666]">{definitionsEn.slice(0, 3).join(' · ')}</p>
           </section>
         )}
 

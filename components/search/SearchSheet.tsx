@@ -5,70 +5,27 @@ import { MagnifyingGlass, PenNib } from '@phosphor-icons/react'
 import { useBottomSheet } from '@/components/shell/BottomSheet'
 import { HanziInput } from '@/components/hanzi/HanziInput'
 import { cn } from '@/lib/utils'
-import type { CharEntry, SearchResult } from '@/lib/types'
+import { searchChars } from '@/lib/client-dictionary'
+import type { SearchResult } from '@/lib/types'
 import { useRouter } from 'next/navigation'
 
 type SearchMode = 'text' | 'draw'
-
-function isCJK(ch: string) {
-  return /[一-鿿㐀-䶿]/.test(ch)
-}
-
-function searchLocally(
-  q: string,
-  index: CharEntry[],
-  kViet: Record<string, string[]>
-): SearchResult[] {
-  const results: SearchResult[] = []
-  const seen = new Set<string>()
-
-  for (const entry of index) {
-    if (
-      entry.char.includes(q) ||
-      entry.pinyin.toLowerCase().includes(q.toLowerCase()) ||
-      entry.sino_vietnamese.toLowerCase().includes(q.toLowerCase())
-    ) {
-      seen.add(entry.char)
-      results.push({ type: 'curated', entry })
-    }
-  }
-
-  if (isCJK(q) && q.length === 1 && !seen.has(q)) {
-    const sv = kViet[q]
-    if (sv) results.push({ type: 'external', entry: { char: q, sino_vietnamese: sv, source: 'kVietnamese' } })
-  }
-
-  if (!isCJK(q)) {
-    for (const [char, readings] of Object.entries(kViet)) {
-      if (seen.has(char)) continue
-      if (readings.some(r => r.toLowerCase().includes(q.toLowerCase()))) {
-        seen.add(char)
-        results.push({ type: 'external', entry: { char, sino_vietnamese: readings, source: 'kVietnamese' } })
-        if (results.length >= 20) break
-      }
-    }
-  }
-
-  return results.slice(0, 20)
-}
 
 function ResultItem({
   result,
   onSelect,
 }: {
   result: SearchResult
-  onSelect: (char: string, type: 'curated' | 'external') => void
+  onSelect: (char: string) => void
 }) {
   const char = result.entry.char
-  const sv =
-    result.type === 'curated'
-      ? result.entry.sino_vietnamese
-      : result.entry.sino_vietnamese[0] ?? ''
-  const pinyin = result.type === 'curated' ? result.entry.pinyin : ''
+  const sv = result.entry.sino_vietnamese
+  const pinyin = 'pinyin' in result.entry ? result.entry.pinyin : ''
+  const isCurated = result.type === 'curated' && result.entry.source === 'repo'
 
   return (
     <button
-      onClick={() => onSelect(char, result.type)}
+      onClick={() => onSelect(char)}
       className="w-full flex items-center gap-3 px-5 py-3 hover:bg-[#F0F0EC] transition-colors text-left"
     >
       <span className="text-2xl w-9 text-center leading-none shrink-0">{char}</span>
@@ -79,12 +36,12 @@ function ResultItem({
       <span
         className={cn(
           'text-[10px] px-1.5 py-0.5 rounded font-medium shrink-0',
-          result.type === 'curated'
+          isCurated
             ? 'bg-green-100 text-green-700'
             : 'bg-[#F0F0EC] text-[#888]'
         )}
       >
-        {result.type === 'curated' ? 'curated' : 'external'}
+        {isCurated ? 'curated' : 'external'}
       </span>
     </button>
   )
@@ -97,33 +54,24 @@ function SearchSheetContent() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [searched, setSearched] = useState(false)
-  const [index, setIndex] = useState<CharEntry[]>([])
-  const [kViet, setKViet] = useState<Record<string, string[]>>({})
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (index.length === 0)
-      fetch('/chars/index.json').then(r => r.json()).then(setIndex).catch(() => {})
-    if (Object.keys(kViet).length === 0)
-      fetch('/data/kVietnamese.json').then(r => r.json()).then(setKViet).catch(() => {})
     const t = setTimeout(() => inputRef.current?.focus(), 80)
     return () => clearTimeout(t)
   }, [])
 
-  const runSearch = useCallback(() => {
+  const runSearch = useCallback(async () => {
     const q = query.trim()
     if (!q) return
-    setResults(searchLocally(q, index, kViet))
+    const r = await searchChars(q)
+    setResults(r)
     setSearched(true)
-  }, [query, index, kViet])
+  }, [query])
 
   const handleSelect = useCallback(
-    (char: string, type: 'curated' | 'external') => {
-      const url =
-        type === 'curated'
-          ? `/char/${encodeURIComponent(char)}`
-          : `/char?c=${encodeURIComponent(char)}`
-      router.push(url)
+    (char: string) => {
+      router.push(`/char/${encodeURIComponent(char)}`)
       closeAll()
     },
     [router, closeAll]
