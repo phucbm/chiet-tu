@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useBottomSheet } from '@/components/shell/BottomSheet'
-import { contributeChar, getPRListUrl } from '@/lib/github'
 import { ArrowSquareOut, GitPullRequest, Warning } from '@phosphor-icons/react'
 import type { CharEntry } from '@/lib/types'
+
+const PR_LIST_URL = 'https://github.com/phucbm/chiet-tu/pulls'
 
 const inputCls =
   'w-full px-3 py-2.5 border border-[#E0E0DC] rounded-xl bg-white text-[#0F0F0F] placeholder-[#AAA] focus:border-[#0F0F0F] transition-colors outline-none text-sm'
@@ -45,31 +46,7 @@ export function ContributeSheet({ char, existing }: Props) {
     try { localStorage.setItem(NICKNAME_KEY, v) } catch {}
   }
 
-  const submitRef = useRef(async () => {
-    if (!canSubmit) return
-    setStatus('loading')
-    setError(null)
-    try {
-      const entry: Partial<CharEntry> = {
-        char,
-        pinyin: pinyin.trim(),
-        sino_vietnamese: sinoViet.trim(),
-        etymology: { vi: etymVi.trim(), en: etymEn.trim() },
-        components: components.split(',').map(s => s.trim()).filter(Boolean),
-        radical: radical.trim(),
-        strokes: existing?.strokes ?? 0,
-        tags: existing?.tags ?? [],
-        notes: existing?.notes ?? '',
-        sources: sources.split(',').map(s => s.trim()).filter(Boolean),
-      }
-      const url = await contributeChar(entry, trimmed, mode)
-      setPrUrl(url)
-      setStatus('success')
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'PR creation failed')
-      setStatus('error')
-    }
-  })
+  const submitRef = useRef(async () => {})
 
   submitRef.current = async () => {
     if (!canSubmit) return
@@ -88,8 +65,14 @@ export function ContributeSheet({ char, existing }: Props) {
         notes: existing?.notes ?? '',
         sources: sources.split(',').map(s => s.trim()).filter(Boolean),
       }
-      const url = await contributeChar(entry, trimmed, mode)
-      setPrUrl(url)
+      const res = await fetch('/api/contribute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ entry, nickname: trimmed, mode }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'PR creation failed')
+      setPrUrl(data.prUrl)
       setStatus('success')
     } catch (e) {
       setError(e instanceof Error ? e.message : 'PR creation failed')
@@ -206,7 +189,7 @@ export function ContributeSheet({ char, existing }: Props) {
         />
         <p className="text-[11px] text-[#AAA]">
           Shows in the PR title. Public on{' '}
-          <a href={getPRListUrl()} target="_blank" rel="noreferrer" className="underline underline-offset-2">GitHub</a>.
+          <a href={PR_LIST_URL} target="_blank" rel="noreferrer" className="underline underline-offset-2">GitHub</a>.
         </p>
       </div>
 

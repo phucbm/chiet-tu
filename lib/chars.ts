@@ -1,10 +1,9 @@
 import { readFile } from 'fs/promises'
 import { join } from 'path'
+import kVietRaw from '@/data/kVietnamese.json'
 import type { CharEntry, ExternalChar, SearchResult } from './types'
 
-const kViet: Record<string, string[]> = JSON.parse(
-  await readFile(join(process.cwd(), 'data', 'kVietnamese.json'), 'utf-8')
-)
+const kViet = kVietRaw as Record<string, string[]>
 
 let _index: CharEntry[] | null = null
 
@@ -59,15 +58,11 @@ export async function searchChars(query: string): Promise<SearchResult[]> {
     }
   }
 
-  // external: single CJK char exact match
   if (isCJK(q) && q.length === 1 && !seen.has(q)) {
     const ext = await getExternalChar(q)
-    if (ext) {
-      results.push({ type: 'external', entry: ext })
-    }
+    if (ext) results.push({ type: 'external', entry: ext })
   }
 
-  // external: sino-viet reverse lookup
   if (!isCJK(q)) {
     for (const [char, readings] of Object.entries(kViet)) {
       if (seen.has(char)) continue

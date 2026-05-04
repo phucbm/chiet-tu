@@ -42,3 +42,6 @@ next-env.d.ts
 
 # generated at build time
 public/chars/index.json
+
+# Cloudflare build output
+.open-next/
