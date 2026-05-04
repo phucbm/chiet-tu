@@ -17,7 +17,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { HanziInput } from '@/components/hanzi/HanziInput'
-import type { SearchResult } from '@/lib/types'
+import type { CharEntry, SearchResult } from '@/lib/types'
 import { useRouter } from 'next/navigation'
 
 type SearchMode = 'text' | 'draw'
@@ -39,6 +39,48 @@ function useIsDesktop() {
   return isDesktop
 }
 
+function isCJK(ch: string) {
+  return /[一-鿿㐀-䶿]/.test(ch)
+}
+
+function searchLocally(
+  q: string,
+  index: CharEntry[],
+  kViet: Record<string, string[]>
+): SearchResult[] {
+  const results: SearchResult[] = []
+  const seen = new Set<string>()
+
+  for (const entry of index) {
+    if (
+      entry.char.includes(q) ||
+      entry.pinyin.toLowerCase().includes(q.toLowerCase()) ||
+      entry.sino_vietnamese.toLowerCase().includes(q.toLowerCase())
+    ) {
+      seen.add(entry.char)
+      results.push({ type: 'curated', entry })
+    }
+  }
+
+  if (isCJK(q) && q.length === 1 && !seen.has(q)) {
+    const sv = kViet[q]
+    if (sv) results.push({ type: 'external', entry: { char: q, sino_vietnamese: sv, source: 'kVietnamese' } })
+  }
+
+  if (!isCJK(q)) {
+    for (const [char, readings] of Object.entries(kViet)) {
+      if (seen.has(char)) continue
+      if (readings.some(r => r.toLowerCase().includes(q.toLowerCase()))) {
+        seen.add(char)
+        results.push({ type: 'external', entry: { char, sino_vietnamese: readings, source: 'kVietnamese' } })
+        if (results.length >= 20) break
+      }
+    }
+  }
+
+  return results.slice(0, 20)
+}
+
 function ResultItem({ result, onSelect }: { result: SearchResult; onSelect: (char: string) => void }) {
   const char = result.entry.char
   const sv = result.type === 'curated'
@@ -58,9 +100,7 @@ function ResultItem({ result, onSelect }: { result: SearchResult; onSelect: (cha
       </span>
       <span className={cn(
         'text-[10px] px-1.5 py-0.5 rounded font-medium shrink-0',
-        result.type === 'curated'
-          ? 'bg-green-100 text-green-700'
-          : 'bg-[#F0F0EC] text-[#888]'
+        result.type === 'curated' ? 'bg-green-100 text-green-700' : 'bg-[#F0F0EC] text-[#888]'
       )}>
         {result.type === 'curated' ? 'curated' : 'external'}
       </span>
@@ -76,7 +116,8 @@ export function SearchDialog({ open, onOpenChange }: Props) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [searched, setSearched] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [index, setIndex] = useState<CharEntry[]>([])
+  const [kViet, setKViet] = useState<Record<string, string[]>>({})
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -89,6 +130,14 @@ export function SearchDialog({ open, onOpenChange }: Props) {
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
   }, [onOpenChange])
+
+  useEffect(() => {
+    if (!open) return
+    if (index.length === 0)
+      fetch('/chars/index.json').then(r => r.json()).then(setIndex).catch(() => {})
+    if (Object.keys(kViet).length === 0)
+      fetch('/data/kVietnamese.json').then(r => r.json()).then(setKViet).catch(() => {})
+  }, [open])
 
   useEffect(() => {
     if (open && mode === 'text') {
@@ -105,23 +154,12 @@ export function SearchDialog({ open, onOpenChange }: Props) {
     setSearched(false)
   }, [router, onOpenChange])
 
-  const runSearch = useCallback(async () => {
+  const runSearch = useCallback(() => {
     const q = query.trim()
     if (!q) return
-    setLoading(true)
-    try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`)
-      const data: SearchResult[] = await res.json()
-      if (data.length === 1 && /[一-鿿㐀-䶿]/.test(q)) {
-        handleSelect(q)
-        return
-      }
-      setResults(data)
-      setSearched(true)
-    } finally {
-      setLoading(false)
-    }
-  }, [query, handleSelect])
+    setResults(searchLocally(q, index, kViet))
+    setSearched(true)
+  }, [query, index, kViet])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') runSearch()
@@ -170,7 +208,7 @@ export function SearchDialog({ open, onOpenChange }: Props) {
               placeholder="Nhập chữ Hán, pinyin, Hán Việt..."
               className="flex-1 min-w-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground py-1"
             />
-            <Button size="sm" onClick={runSearch} disabled={!query.trim() || loading}>
+            <Button size="sm" onClick={runSearch} disabled={!query.trim()}>
               <MagnifyingGlass className="size-3.5" />
               Tìm
             </Button>
@@ -197,7 +235,7 @@ export function SearchDialog({ open, onOpenChange }: Props) {
         )}>
           <p className="text-xs text-muted-foreground uppercase tracking-widest shrink-0">Viết tay</p>
           <HanziInput
-            proxyUrl="/api/handwriting"
+            proxyUrl=""
             onSelect={handleCandidateClick}
             width={280}
             height={280}

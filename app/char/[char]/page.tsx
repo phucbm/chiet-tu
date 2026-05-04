@@ -1,7 +1,14 @@
-import { getChar, getExternalChar } from '@/lib/chars'
+import { getAllChars, getChar, getExternalChar } from '@/lib/chars'
 import { CharPageClient } from './CharPageClient'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+
+export const dynamicParams = false
+
+export async function generateStaticParams() {
+  const chars = await getAllChars()
+  return chars.map(c => ({ char: encodeURIComponent(c.char) }))
+}
 
 interface Props {
   params: Promise<{ char: string }>

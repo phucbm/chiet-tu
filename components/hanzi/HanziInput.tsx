@@ -2,14 +2,14 @@
 
 import { useCallback, useRef, useState } from 'react'
 import { HanziPad } from './HanziPad'
-import { recognize } from './recognize'
+import { recognizeDirect } from './recognize'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { Candidate, HanziInputProps, HanziPadHandle, Stroke } from './types'
 
 export function HanziInput({
   onSelect,
-  proxyUrl,
+  proxyUrl: _proxyUrl,
   language = 'zh-CN',
   limit = 8,
   width = 280,
@@ -37,13 +37,13 @@ export function HanziInput({
     setError(null)
     setCandidates([])
     try {
-      setCandidates(await recognize(strokes, { proxyUrl, language, limit, width, height }))
+      setCandidates(await recognizeDirect(strokes, { language, limit, width, height }))
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {
       setLoading(false)
     }
-  }, [proxyUrl, language, limit, width, height])
+  }, [language, limit, width, height])
 
   const handleClear = useCallback(() => {
     padRef.current?.clear()
