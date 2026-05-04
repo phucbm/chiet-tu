@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from 'react'
-import { ArrowLeft, CopySimple, MagnifyingGlass, PencilSimple } from '@phosphor-icons/react'
+import { ArrowLeft, CopySimple, GitPullRequest, MagnifyingGlass, PencilSimple } from '@phosphor-icons/react'
 import { useRouter } from 'next/navigation'
 import { ToolBar } from '@/components/shell/ToolBar'
 import { useBottomSheet } from '@/components/shell/BottomSheet'
@@ -113,7 +113,7 @@ export function CharPageClient({ char, curated, external, lexicon }: Props) {
 
   const rightButtons: ControlButton[] = [
     ...(localChar
-      ? [{ icon: <CopySimple size={20} />, label: 'Contribute', position: 'right' as const, onClick: openContribute }]
+      ? [{ icon: <GitPullRequest size={20} />, label: 'Contribute', position: 'right' as const, onClick: openContribute }]
       : []),
     { icon: <PencilSimple size={20} />, label: 'Edit', position: 'right', onClick: openEdit },
     { icon: <MagnifyingGlass size={20} />, label: 'Search', position: 'right', onClick: openSearch },
