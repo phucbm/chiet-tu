@@ -1,9 +1,7 @@
-import { getAllChars, getChar, getExternalChar } from '@/lib/chars'
+import { getAllChars, getChar } from '@/lib/chars'
 import { CharPageClient } from './CharPageClient'
-import { notFound } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
-
-export const dynamicParams = false
 
 export async function generateStaticParams() {
   const chars = await getAllChars()
@@ -28,9 +26,10 @@ export default async function CharPage({ params }: Props) {
   const { char } = await params
   const decoded = decodeURIComponent(char)
   const curated = await getChar(decoded)
-  const external = curated ? null : await getExternalChar(decoded)
 
-  if (!curated && !external) notFound()
+  if (!curated) {
+    redirect(`/char?c=${encodeURIComponent(decoded)}`)
+  }
 
-  return <CharPageClient curated={curated} external={external} char={decoded} />
+  return <CharPageClient curated={curated} external={null} char={decoded} />
 }
