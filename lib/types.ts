@@ -1,18 +1,33 @@
-export interface CharEntry {
+export interface EtymologyComponent {
   char: string
+  componentName: string
   pinyin: string
   sino_vietnamese: string
-  strokes: number
-  radical: string
-  components: string[]
+  translation: string
+}
+
+export interface CharEntry {
+  char: string
+  trad?: string
+  pinyin: string
+  sino_vietnamese: string
+  strokes?: number
+  radical?: string
+  translation: { vi: string }
   etymology: {
-    vi: string
-    en: string
+    note: string
+    components: EtymologyComponent[]
+    examples: string[]
+    related: string[]
   }
-  notes: string
   tags: string[]
-  contributor: string
+  contributor?: string
   sources: string[]
+  // runtime/local-only — not persisted in repo JSON files
+  source?: 'repo' | 'local'
+  copiedFrom?: string
+  createdAt?: number
+  updatedAt?: number
 }
 
 export interface ExternalChar {

@@ -49,17 +49,24 @@ export function prTitle(char: string, nickname: string, mode: 'new' | 'edit') {
   return `${mode === 'edit' ? '[edit]' : '[new]'} ${char} by ${nickname}`
 }
 
-export function prBody(entry: Partial<CharEntry>, nickname: string) {
+function prBody(entry: Partial<CharEntry>, nickname: string): string {
+  const components = entry.etymology?.components
+    ?.map(c => `  - ${c.char} (${c.componentName}): ${c.sino_vietnamese} — ${c.translation}`)
+    .join('\n') ?? ''
+
   return [
-    `**Character:** ${entry.char}`,
+    `**Character:** ${entry.char}${entry.trad ? ` / ${entry.trad}` : ''}`,
     `**Pinyin:** ${entry.pinyin ?? ''}`,
     `**Sino-Vietnamese:** ${entry.sino_vietnamese ?? ''}`,
-    `**Etymology (VI):** ${entry.etymology?.vi ?? ''}`,
+    `**Translation (VI):** ${entry.translation?.vi ?? ''}`,
+    '',
+    entry.etymology?.note ? `**Etymology note:** ${entry.etymology.note}` : '',
+    components ? `**Components:**\n${components}` : '',
     '',
     '---',
     `Contributed by: ${nickname}`,
-    `_Added via chiết tự app. To request removal, open an issue or comment on this PR._`,
-  ].join('\n')
+    `_Added via chiết tự app._`,
+  ].filter(l => l !== undefined).join('\n')
 }
 
 export async function contributeChar(
@@ -76,7 +83,9 @@ export async function contributeChar(
   const { data: ref } = await octokit.rest.git.getRef({ owner: OWNER, repo: REPO, ref: 'heads/main' })
   const mainSha = ref.object.sha
 
-  const finalEntry = { ...entry, contributor: nickname }
+  // Strip runtime-only fields before persisting
+  const { source: _source, copiedFrom: _copiedFrom, createdAt: _createdAt, updatedAt: _updatedAt, ...repoEntry } = entry as CharEntry
+  const finalEntry = { ...repoEntry, contributor: nickname }
   const content = btoa(unescape(encodeURIComponent(JSON.stringify(finalEntry, null, 2))))
 
   await octokit.rest.git.createRef({ owner: OWNER, repo: REPO, ref: `refs/heads/${branch}`, sha: mainSha })

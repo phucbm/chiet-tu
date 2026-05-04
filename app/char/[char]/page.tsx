@@ -1,4 +1,5 @@
 import { getAllChars, getChar } from '@/lib/chars'
+import { getLexiconData } from '@/lib/lexicon'
 import { CharPageClient } from './CharPageClient'
 import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
@@ -31,5 +32,7 @@ export default async function CharPage({ params }: Props) {
     redirect(`/char?c=${encodeURIComponent(decoded)}`)
   }
 
-  return <CharPageClient curated={curated} external={null} char={decoded} />
+  const lexicon = getLexiconData(decoded)
+
+  return <CharPageClient curated={curated} external={null} char={decoded} lexicon={lexicon} />
 }

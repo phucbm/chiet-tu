@@ -89,7 +89,7 @@ export function BottomSheetProvider({ children }: { children: ReactNode }) {
       {children}
 
       <div
-        className="fixed inset-0 z-40 transition-opacity duration-300"
+        className="absolute inset-0 z-40 transition-opacity duration-300"
         style={{
           backgroundColor: 'rgba(0,0,0,0.35)',
           opacity: isOpen ? 1 : 0,
@@ -99,7 +99,7 @@ export function BottomSheetProvider({ children }: { children: ReactNode }) {
       />
 
       <div
-        className="fixed inset-x-0 bottom-0 z-50 bg-[#F8F7F5] rounded-t-2xl shadow-2xl flex flex-col"
+        className="absolute inset-x-0 bottom-0 z-50 bg-[#F8F7F5] rounded-t-2xl shadow-2xl flex flex-col"
         style={{
           transform: isOpen ? `translateY(${dragY}px)` : 'translateY(100%)',
           transition: dragging ? 'none' : 'transform 0.3s cubic-bezier(0.32,0.72,0,1)',

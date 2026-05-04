@@ -4,12 +4,30 @@
   "sino_vietnamese": "trung",
   "strokes": 4,
   "radical": "丨",
-  "components": ["口", "丨"],
-  "etymology": {
-    "vi": "Hình ảnh cây cọc cắm giữa vòng tròn, nghĩa gốc là 'ở giữa'. Sau mở rộng nghĩa thành trung tâm, bên trong.",
-    "en": "Pictograph of a pole through the center of a target. Original meaning: middle, center."
+  "translation": {
+    "vi": "ở giữa, trung tâm, bên trong"
   },
-  "notes": "",
+  "etymology": {
+    "note": "Hình ảnh cây cọc cắm giữa vòng tròn, nghĩa gốc là 'ở giữa'. Sau mở rộng nghĩa thành trung tâm, bên trong.",
+    "components": [
+      {
+        "char": "口",
+        "componentName": "ý nghĩa",
+        "pinyin": "kǒu",
+        "sino_vietnamese": "khẩu",
+        "translation": "miệng, vòng tròn"
+      },
+      {
+        "char": "丨",
+        "componentName": "ý nghĩa",
+        "pinyin": "gǔn",
+        "sino_vietnamese": "",
+        "translation": "cây cọc xuyên qua giữa"
+      }
+    ],
+    "examples": ["中国", "中文", "中心", "居中"],
+    "related": ["央", "间", "内"]
+  },
   "tags": ["hsk1", "common"],
   "contributor": "phucbm",
   "sources": ["chiettu-book", "outlier-linguistics"]

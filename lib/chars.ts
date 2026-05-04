@@ -11,7 +11,8 @@ async function loadIndex(): Promise<CharEntry[]> {
   if (_index) return _index
   try {
     const raw = await readFile(join(process.cwd(), 'public', 'chars', 'index.json'), 'utf-8')
-    _index = JSON.parse(raw)
+    const parsed: CharEntry[] = JSON.parse(raw)
+    _index = parsed.map((e) => ({ ...e, source: 'repo' as const }))
   } catch {
     _index = []
   }
@@ -45,14 +46,12 @@ export async function searchChars(query: string): Promise<SearchResult[]> {
   const results: SearchResult[] = []
   const seen = new Set<string>()
 
-  const curated = index.filter(e =>
-    e.char.includes(q) ||
-    e.pinyin.toLowerCase().includes(q.toLowerCase()) ||
-    e.sino_vietnamese.toLowerCase().includes(q.toLowerCase())
-  )
-
-  for (const entry of curated) {
-    if (!seen.has(entry.char)) {
+  for (const entry of index) {
+    if (
+      entry.char.includes(q) ||
+      entry.pinyin.toLowerCase().includes(q.toLowerCase()) ||
+      entry.sino_vietnamese.toLowerCase().includes(q.toLowerCase())
+    ) {
       seen.add(entry.char)
       results.push({ type: 'curated', entry })
     }

@@ -1,44 +1,40 @@
 "use client"
 
 import { useEffect, useRef, useState } from 'react'
-import { useBottomSheet } from '@/components/shell/BottomSheet'
-import { contributeChar, getPRListUrl } from '@/lib/github'
 import { ArrowSquareOut, GitPullRequest, Warning } from '@phosphor-icons/react'
+import { useBottomSheet } from '@/components/shell/BottomSheet'
+import { contributeChar, getPRListUrl, prTitle } from '@/lib/github'
+import { charChangeSummary } from '@/lib/utils'
 import type { CharEntry } from '@/lib/types'
 
 const inputCls =
   'w-full px-3 py-2.5 border border-[#E0E0DC] rounded-xl bg-white text-[#0F0F0F] placeholder-[#AAA] focus:border-[#0F0F0F] transition-colors outline-none text-sm'
 
-const textareaCls = inputCls + ' resize-none min-h-[80px]'
-
-const NICKNAME_KEY = 'chietu_nickname'
+const NICKNAME_KEY = 'chiettu_nickname'
 
 interface Props {
-  char: string
-  existing?: CharEntry
+  char: CharEntry
+  repoOriginal?: CharEntry | null
 }
 
-export function ContributeSheet({ char, existing }: Props) {
+export function ContributeSheet({ char, repoOriginal }: Props) {
   const { close, setFooter } = useBottomSheet()
-  const mode = existing ? 'edit' : 'new'
 
-  const [pinyin, setPinyin] = useState(existing?.pinyin ?? '')
-  const [sinoViet, setSinoViet] = useState(existing?.sino_vietnamese ?? '')
-  const [etymVi, setEtymVi] = useState(existing?.etymology.vi ?? '')
-  const [etymEn, setEtymEn] = useState(existing?.etymology.en ?? '')
-  const [components, setComponents] = useState(existing?.components.join(', ') ?? '')
-  const [radical, setRadical] = useState(existing?.radical ?? '')
-  const [sources, setSources] = useState(existing?.sources.join(', ') ?? '')
+  const isCopy = !!char.copiedFrom && !char.copiedFrom.startsWith('gen:')
+  const diff = isCopy && repoOriginal ? charChangeSummary(char, repoOriginal) : null
+  const isIdentical = isCopy && diff !== null && diff.changedFields === 0
+
+  const [mode, setMode] = useState<'new' | 'edit'>('new')
   const [nickname, setNickname] = useState(() => {
     try { return localStorage.getItem(NICKNAME_KEY) ?? '' } catch { return '' }
   })
-
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [prUrl, setPrUrl] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const trimmed = nickname.trim()
-  const canSubmit = trimmed.length >= 2 && etymVi.trim().length > 0 && status !== 'loading'
+  const tooShort = trimmed.length > 0 && trimmed.length < 2
+  const canSubmit = trimmed.length >= 2 && status !== 'loading' && !isIdentical
 
   function handleNicknameChange(v: string) {
     setNickname(v)
@@ -46,25 +42,12 @@ export function ContributeSheet({ char, existing }: Props) {
   }
 
   const submitRef = useRef(async () => {})
-
   submitRef.current = async () => {
     if (!canSubmit) return
     setStatus('loading')
     setError(null)
     try {
-      const entry: Partial<CharEntry> = {
-        char,
-        pinyin: pinyin.trim(),
-        sino_vietnamese: sinoViet.trim(),
-        etymology: { vi: etymVi.trim(), en: etymEn.trim() },
-        components: components.split(',').map(s => s.trim()).filter(Boolean),
-        radical: radical.trim(),
-        strokes: existing?.strokes ?? 0,
-        tags: existing?.tags ?? [],
-        notes: existing?.notes ?? '',
-        sources: sources.split(',').map(s => s.trim()).filter(Boolean),
-      }
-      const url = await contributeChar(entry, trimmed, mode)
+      const url = await contributeChar(char, trimmed, mode)
       setPrUrl(url)
       setStatus('success')
     } catch (e) {
@@ -84,10 +67,10 @@ export function ContributeSheet({ char, existing }: Props) {
             className="w-full py-3.5 bg-[#0F0F0F] rounded-xl text-sm font-semibold text-white hover:bg-[#2a2a2a] transition-colors flex items-center justify-center gap-2"
           >
             <ArrowSquareOut size={14} />
-            View PR on GitHub
+            Xem PR trên GitHub
           </a>
           <button onClick={close} className="w-full py-2 text-sm text-[#AAA] hover:text-[#555] transition-colors">
-            Done
+            Đóng
           </button>
         </div>
       )
@@ -99,20 +82,20 @@ export function ContributeSheet({ char, existing }: Props) {
           className="w-full py-3.5 bg-[#0F0F0F] rounded-xl text-sm font-semibold text-white disabled:opacity-40 hover:bg-[#2a2a2a] transition-colors flex items-center justify-center gap-2"
         >
           <GitPullRequest size={15} weight="fill" />
-          {mode === 'edit' ? 'Propose edits' : 'Send contribution'}
+          Gửi đóng góp
         </button>
       )
     } else {
       setFooter(null)
     }
-  }, [status, prUrl, canSubmit, mode])
+  }, [status, prUrl, canSubmit])
 
   if (status === 'success') {
     return (
-      <div className="px-5 pb-4 py-6 text-center space-y-2">
-        <p className="text-2xl">{char}</p>
-        <p className="text-sm font-semibold text-[#0F0F0F]">PR created!</p>
-        <p className="text-xs text-[#888]">Your contribution is under review. Thank you!</p>
+      <div className="px-5 pb-4 py-8 text-center space-y-2">
+        <p className="text-5xl">{char.char}</p>
+        <p className="text-sm font-semibold text-[#0F0F0F]">PR đã tạo!</p>
+        <p className="text-xs text-[#888]">Đóng góp của bạn đang chờ xét duyệt. Cảm ơn!</p>
       </div>
     )
   }
@@ -120,7 +103,7 @@ export function ContributeSheet({ char, existing }: Props) {
   if (status === 'loading') {
     return (
       <div className="px-5 pb-4 py-8 text-center">
-        <p className="text-sm text-[#888]">Creating PR…</p>
+        <p className="text-sm text-[#888]">Đang tạo PR…</p>
       </div>
     )
   }
@@ -128,50 +111,79 @@ export function ContributeSheet({ char, existing }: Props) {
   return (
     <div className="px-5 pb-4 space-y-4">
       <p className="text-xs text-[#888] leading-relaxed">
-        {mode === 'new'
-          ? `Create a Pull Request to add etymology for ${char}. Once merged, it appears on the site.`
-          : `Propose edits for ${char}. Your changes will be reviewed before merging.`}
+        Tạo Pull Request để đóng góp dữ liệu cho <span className="font-medium text-[#0F0F0F]">{char.char}</span>.
+        Sau khi được duyệt, sẽ xuất hiện trong từ điển cộng đồng.
       </p>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-[#888]">Pinyin</label>
-          <input className={inputCls} placeholder="zhōng" value={pinyin} onChange={e => setPinyin(e.target.value)} />
+      {/* Diff status */}
+      {isCopy && diff !== null && (
+        <div className={`flex items-start gap-2 px-3 py-2.5 rounded-xl text-xs ${
+          diff.changedFields > 0
+            ? 'bg-green-50 border border-green-200 text-green-700'
+            : 'bg-[#F0F0EC] border border-[#E0E0DC] text-[#888]'
+        }`}>
+          <span className={`w-2 h-2 rounded-full shrink-0 mt-0.5 ${diff.changedFields > 0 ? 'bg-green-500' : 'bg-[#CCC]'}`} />
+          {diff.changedFields === 0
+            ? 'Giống hệt bản cộng đồng — không có thay đổi để đóng góp.'
+            : `${diff.changedFields} trường đã thay đổi: ${diff.fieldNames.join(', ')}.`}
         </div>
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-[#888]">Hán Việt</label>
-          <input className={inputCls} placeholder="trung" value={sinoViet} onChange={e => setSinoViet(e.target.value)} />
+      )}
+
+      {/* Mode selector */}
+      <div className={`space-y-1.5 ${isIdentical ? 'pointer-events-none opacity-40' : ''}`}>
+        <p className="text-xs font-medium text-[#888]">Đóng góp dưới dạng</p>
+        <div className="space-y-2">
+          <label className={`flex items-start gap-3 px-3 py-3 rounded-xl border transition-colors cursor-pointer ${
+            mode === 'new' ? 'border-[#0F0F0F] bg-[#F8F7F5]' : 'border-[#E0E0DC] bg-white'
+          }`}>
+            <input
+              type="radio"
+              name="contribute-mode"
+              value="new"
+              checked={mode === 'new'}
+              onChange={() => setMode('new')}
+              disabled={isIdentical}
+              className="mt-0.5 accent-[#0F0F0F]"
+            />
+            <div>
+              <p className="text-sm font-medium text-[#0F0F0F]">Chữ mới</p>
+              <p className="text-[11px] text-[#888] mt-0.5">Thêm như một entry mới trong từ điển.</p>
+            </div>
+          </label>
+
+          {isCopy && (
+            <label className={`flex items-start gap-3 px-3 py-3 rounded-xl border transition-colors cursor-pointer ${
+              mode === 'edit' ? 'border-[#0F0F0F] bg-[#F8F7F5]' : 'border-[#E0E0DC] bg-white'
+            }`}>
+              <input
+                type="radio"
+                name="contribute-mode"
+                value="edit"
+                checked={mode === 'edit'}
+                onChange={() => setMode('edit')}
+                disabled={isIdentical}
+                className="mt-0.5 accent-[#0F0F0F]"
+              />
+              <div>
+                <p className="text-sm font-medium text-[#0F0F0F]">Đề xuất chỉnh sửa</p>
+                <p className="text-[11px] text-[#888] mt-0.5">Sửa entry gốc trong từ điển cộng đồng.</p>
+              </div>
+            </label>
+          )}
         </div>
       </div>
 
+      {/* PR preview */}
       <div className="space-y-1">
-        <label className="text-xs font-medium text-[#888]">Etymology (Tiếng Việt) *</label>
-        <textarea className={textareaCls} placeholder="Giải thích nguồn gốc..." value={etymVi} onChange={e => setEtymVi(e.target.value)} />
+        <span className="text-xs font-medium text-[#888]">PR title</span>
+        <p className="text-xs text-[#0F0F0F] bg-[#F0F0EC] rounded-xl px-3 py-2.5 font-mono leading-snug">
+          {prTitle(char.char, trimmed || '…', mode)}
+        </p>
       </div>
 
-      <div className="space-y-1">
-        <label className="text-xs font-medium text-[#888]">Etymology (English)</label>
-        <textarea className={textareaCls} placeholder="Etymology explanation..." value={etymEn} onChange={e => setEtymEn(e.target.value)} />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-[#888]">Components (comma-sep)</label>
-          <input className={inputCls} placeholder="口, 丨" value={components} onChange={e => setComponents(e.target.value)} />
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-[#888]">Radical</label>
-          <input className={inputCls} placeholder="丨" value={radical} onChange={e => setRadical(e.target.value)} />
-        </div>
-      </div>
-
-      <div className="space-y-1">
-        <label className="text-xs font-medium text-[#888]">Sources (comma-sep)</label>
-        <input className={inputCls} placeholder="chiettu-book, outlier-linguistics" value={sources} onChange={e => setSources(e.target.value)} />
-      </div>
-
-      <div className="space-y-1">
-        <label className="text-xs font-medium text-[#888]">Nickname *</label>
+      {/* Nickname */}
+      <div className="space-y-1.5">
+        <label className="text-xs font-medium text-[#888]">Nickname</label>
         <input
           className={inputCls}
           placeholder="e.g. phucbm"
@@ -180,9 +192,13 @@ export function ContributeSheet({ char, existing }: Props) {
           autoCapitalize="none"
           autoCorrect="off"
         />
-        <p className="text-[11px] text-[#AAA]">
-          Shows in the PR title. Public on{' '}
-          <a href={getPRListUrl()} target="_blank" rel="noreferrer" className="underline underline-offset-2">GitHub</a>.
+        {tooShort && <p className="text-[11px] text-red-500">Cần ít nhất 2 ký tự.</p>}
+        <p className="text-[11px] text-[#AAA] leading-relaxed">
+          Hiển thị trong tiêu đề PR. Công khai trên{' '}
+          <a href={getPRListUrl()} target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:text-[#888]">
+            GitHub
+          </a>
+          .
         </p>
       </div>
 
