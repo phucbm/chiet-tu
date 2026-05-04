@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ArrowCounterClockwise, Plus, Trash } from '@phosphor-icons/react'
 import { pinyin } from 'pinyin-pro'
 import { useBottomSheet } from '@/components/shell/BottomSheet'
@@ -141,7 +141,6 @@ function ComponentRow({
 export function EditSheet({ char }: Props) {
   const { updateChar, deleteChar } = useCharStore()
   const { closeAll } = useBottomSheet()
-  const { setFooter } = useBottomSheet()
 
   const draft = loadDraft(char.char)
 
@@ -157,13 +156,11 @@ export function EditSheet({ char }: Props) {
   const [related, setRelated] = useState(draft?.related ?? char.etymology.related.join(', '))
   const [resetting, setResetting] = useState(false)
   const [fetchingStrokes, setFetchingStrokes] = useState(false)
-  const [hasDraft, setHasDraft] = useState(!!draft)
 
-  // Auto-save draft on any change
+  // Silent auto-save on any change
   useEffect(() => {
     const state: DraftState = { trad, pinyin: pinyinVal, sinoViet, strokes, radical, translationVi, note, components, examples, related }
     saveDraft(char.char, state)
-    setHasDraft(true)
   }, [trad, pinyinVal, sinoViet, strokes, radical, translationVi, note, components, examples, related])
 
   async function handleFetchStrokes() {
@@ -191,25 +188,6 @@ export function EditSheet({ char }: Props) {
     }
   }
 
-  function handleSave() {
-    updateChar(char.char, buildUpdates())
-    clearDraft(char.char)
-    closeAll()
-  }
-
-  const handleSaveRef = useRef(handleSave)
-  handleSaveRef.current = handleSave
-
-  useEffect(() => {
-    setFooter(
-      <button
-        onClick={() => handleSaveRef.current()}
-        className="w-full py-3.5 bg-[#0F0F0F] rounded-xl text-sm font-semibold text-white hover:bg-[#2a2a2a] transition-colors"
-      >
-        Lưu
-      </button>
-    )
-  }, [])
 
   async function handleReset() {
     if (!char.copiedFrom || char.copiedFrom.startsWith('gen:')) return
@@ -236,21 +214,6 @@ export function EditSheet({ char }: Props) {
     closeAll()
   }
 
-  function handleDiscardDraft() {
-    clearDraft(char.char)
-    setTrad(char.trad ?? '')
-    setPinyinVal(char.pinyin)
-    setSinoViet(char.sino_vietnamese)
-    setStrokes(String(char.strokes ?? ''))
-    setRadical(char.radical ?? '')
-    setTranslationVi(char.translation.vi)
-    setNote(char.etymology.note)
-    setComponents(char.etymology.components)
-    setExamples(char.etymology.examples.join(', '))
-    setRelated(char.etymology.related.join(', '))
-    setHasDraft(false)
-  }
-
   function addComponent() {
     setComponents(prev => [
       ...prev,
@@ -261,8 +224,8 @@ export function EditSheet({ char }: Props) {
   return (
     <div className="px-5 pb-4 space-y-5">
       {/* Top actions */}
-      <div className="flex justify-between items-center -mb-2">
-        {char.copiedFrom && !char.copiedFrom.startsWith('gen:') ? (
+      {char.copiedFrom && !char.copiedFrom.startsWith('gen:') && (
+        <div className="flex items-center -mb-2">
           <button
             onClick={handleReset}
             disabled={resetting}
@@ -271,24 +234,6 @@ export function EditSheet({ char }: Props) {
             <ArrowCounterClockwise size={13} />
             {resetting ? 'Đang khôi phục…' : 'Khôi phục bản gốc'}
           </button>
-        ) : (
-          <span />
-        )}
-        {hasDraft && (
-          <button
-            onClick={handleDiscardDraft}
-            className="text-xs text-[#AAA] hover:text-red-500 transition-colors"
-          >
-            Bỏ nháp
-          </button>
-        )}
-      </div>
-
-      {/* Draft indicator */}
-      {hasDraft && (
-        <div className="flex items-center gap-1.5 text-[11px] text-[#888] bg-[#F8F7F5] border border-[#E0E0DC] rounded-xl px-3 py-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
-          Đang lưu nháp tự động
         </div>
       )}
 

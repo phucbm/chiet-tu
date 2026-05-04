@@ -2,13 +2,12 @@
 
 import { useEffect } from 'react'
 import { MagnifyingGlass } from '@phosphor-icons/react'
+import { useRouter } from 'next/navigation'
 import { ToolBar } from '@/components/shell/ToolBar'
 import { AppFooter } from '@/components/shell/AppFooter'
 import { CharCard } from '@/components/CharCard'
 import { useSearchSheet } from '@/components/search/SearchSheet'
 import { useCharStore } from '@/store/useCharStore'
-import { useBottomSheet } from '@/components/shell/BottomSheet'
-import { EditSheet } from '@/components/sheets/EditSheet'
 import type { CharEntry } from '@/lib/types'
 import type { ControlButton } from '@/components/shell/controls'
 
@@ -17,13 +16,9 @@ interface Props {
 }
 
 export function HomeClient({ chars }: Props) {
+  const router = useRouter()
   const openSearch = useSearchSheet()
   const { chars: localChars } = useCharStore()
-  const { open } = useBottomSheet()
-
-  function openEdit(char: CharEntry) {
-    open(<EditSheet char={char} />, `Chỉnh sửa ${char.char}`)
-  }
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -64,7 +59,7 @@ export function HomeClient({ chars }: Props) {
                 <CharCard
                   key={`local-${entry.char}-${entry.createdAt}`}
                   entry={entry}
-                  onClick={() => openEdit(entry)}
+                  onClick={() => router.push(`/char/${encodeURIComponent(entry.char)}`)}
                 />
               ))}
             </div>

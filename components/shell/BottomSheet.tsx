@@ -104,6 +104,7 @@ export function BottomSheetProvider({ children }: { children: ReactNode }) {
           transform: isOpen ? `translateY(${dragY}px)` : 'translateY(100%)',
           transition: dragging ? 'none' : 'transform 0.3s cubic-bezier(0.32,0.72,0,1)',
           maxHeight: '85dvh',
+          pointerEvents: isOpen ? 'auto' : 'none',
         }}
       >
         <div
