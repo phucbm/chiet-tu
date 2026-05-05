@@ -1,18 +1,18 @@
 "use client"
 
-import { useEffect } from 'react'
-import { ArrowLeft, CopySimple, GitPullRequest, MagnifyingGlass, PencilSimple } from '@phosphor-icons/react'
-import { useRouter } from 'next/navigation'
-import { ToolBar } from '@/components/shell/ToolBar'
-import { useBottomSheet } from '@/components/shell/BottomSheet'
-import { EditSheet } from '@/components/sheets/EditSheet'
-import { ContributeSheet } from '@/components/contribute/ContributeSheet'
-import { useSearchSheet } from '@/components/search/SearchSheet'
-import { StrokeBox } from '@/components/StrokeBox'
-import { useCharStore } from '@/store/useCharStore'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import type { CharEntry } from '@/lib/types'
-import type { ControlButton } from '@/components/shell/controls'
+import {useEffect} from 'react'
+import {ArrowLeft, CopySimple, GitPullRequest, MagnifyingGlass, PencilSimple} from '@phosphor-icons/react'
+import {useRouter} from 'next/navigation'
+import {ToolBar} from '@/components/shell/ToolBar'
+import {useBottomSheet} from '@/components/shell/BottomSheet'
+import {EditSheet} from '@/components/sheets/EditSheet'
+import {ContributeSheet} from '@/components/contribute/ContributeSheet'
+import {useSearchSheet} from '@/components/search/SearchSheet'
+import {StrokeBox} from '@/components/StrokeBox'
+import {useCharStore} from '@/store/useCharStore'
+import {useHeaderSlot} from '@/components/shell/HeaderSlot'
+import type {CharEntry} from '@/lib/types'
+import type {ControlButton} from '@/components/shell/controls'
 
 interface Props {
   char: string
@@ -57,6 +57,8 @@ export function CharPageClient({ char, initialData }: Props) {
   }, [openSearch])
 
   const entry = localChar ?? initialData
+
+    useHeaderSlot(<span className="text-sm font-medium text-[#888]">Chiết Tự</span>)
 
   const sinoViet = entry.sino_vietnamese
   const pinyin = entry.pinyin
@@ -110,143 +112,144 @@ export function CharPageClient({ char, initialData }: Props) {
   ]
 
   return (
-    <div className="char-page__wrapper flex-1 flex flex-col relative overflow-hidden" style={{ height: '100%' }}>
-      <header className="shrink-0 px-5 pt-4 pb-2">
-        <span className="text-sm font-medium text-[#888]">Chiết Tự</span>
-      </header>
-
-      <ScrollArea className="char-page__scroll flex-1 px-5 pb-28" style={{ height: '100%' }}>
-        <div className="char-page__content space-y-6">
-        {/* Hero */}
-        <div className="flex flex-col items-center gap-2 pt-2">
-          <div className="flex items-baseline gap-4">
-            <span className="text-8xl leading-none">{char}</span>
-            {trad && trad !== char && (
-              <div className="flex flex-col items-center">
-                <span className="text-[10px] text-[#AAA] mb-1">phồn thể</span>
-                <span className="text-5xl leading-none text-[#888]">{trad}</span>
-              </div>
-            )}
-          </div>
-          <div className="flex items-center gap-2 text-sm text-[#666]">
-            {sinoViet && <span className="font-medium text-[#0F0F0F]">{sinoViet}</span>}
-            {pinyin && sinoViet && <span className="text-[#CCC]">·</span>}
-            {pinyin && <span>{pinyin}</span>}
-            {strokes && <span className="text-[#CCC]">·</span>}
-            {strokes && <span>{strokes} nét</span>}
-          </div>
-          <div className="flex items-center gap-1.5">
-            {initialData.source === 'dictionary' && !localChar && (
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#F0F0EC] text-[#888] font-medium">external</span>
-            )}
-            {localChar && (
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium">local</span>
-            )}
-          </div>
-        </div>
-
-        {/* Stroke animation */}
-        <div className="flex justify-center">
-          <StrokeBox char={char} />
-        </div>
-
-        {/* Translation */}
-        {translationVi && (
-          <section className="space-y-1.5">
-            <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">Nghĩa</h2>
-            <p className="text-sm text-[#0F0F0F]">{translationVi}</p>
-          </section>
-        )}
-
-        {/* Etymology note */}
-        {etymNote ? (
-          <section className="space-y-1.5">
-            <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">Chiết tự</h2>
-            <p className="text-sm leading-relaxed text-[#0F0F0F]">{etymNote}</p>
-          </section>
-        ) : (
-          <section className="space-y-2">
-            <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">Chiết tự</h2>
-            <div className="border border-dashed border-[#E0E0DC] rounded-xl p-4 text-center space-y-2">
-              <p className="text-sm text-[#888]">Chưa có dữ liệu chiết tự.</p>
-              <button onClick={openEdit} className="text-sm text-[#0F0F0F] font-medium underline underline-offset-2">
-                {localChar ? 'Chỉnh sửa ngay →' : 'Lưu về thiết bị để đóng góp →'}
-              </button>
-            </div>
-          </section>
-        )}
-
-        {/* Components */}
-        {etymComponents.length > 0 && (
-          <section className="space-y-2">
-            <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">Thành phần</h2>
-            <div className="space-y-2">
-              {etymComponents.map((c, i) => (
-                <div key={i} className="flex items-start gap-3 px-3 py-2.5 bg-[#F8F7F5] border border-[#E8E8E4] rounded-xl">
-                  <span className="text-2xl leading-none shrink-0 w-8 text-center">{c.char}</span>
-                  <div className="flex flex-col min-w-0">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      {c.sino_vietnamese && <span className="text-sm font-medium">{c.sino_vietnamese}</span>}
-                      {c.pinyin && <span className="text-xs text-[#888]">({c.pinyin})</span>}
-                      {c.componentName && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#ECEAE6] text-[#888]">{c.componentName}</span>
+      <>
+          <div className="char-page__content space-y-6 ring">
+              {/* Hero */}
+              <div className="flex flex-col items-center gap-2 pt-2">
+                  <div className="flex items-baseline gap-4">
+                      <span className="text-8xl leading-none">{char}</span>
+                      {trad && trad !== char && (
+                          <div className="flex flex-col items-center">
+                              <span className="text-[10px] text-[#AAA] mb-1">phồn thể</span>
+                              <span className="text-5xl leading-none text-[#888]">{trad}</span>
+                          </div>
                       )}
-                    </div>
-                    {c.translation && <p className="text-xs text-[#666] mt-0.5">{c.translation}</p>}
                   </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+                  <div className="flex items-center gap-2 text-sm text-[#666]">
+                      {sinoViet && <span className="font-medium text-[#0F0F0F]">{sinoViet}</span>}
+                      {pinyin && sinoViet && <span className="text-[#CCC]">·</span>}
+                      {pinyin && <span>{pinyin}</span>}
+                      {strokes && <span className="text-[#CCC]">·</span>}
+                      {strokes && <span>{strokes} nét</span>}
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                      {initialData.source === 'dictionary' && !localChar && (
+                          <span
+                              className="text-[10px] px-2 py-0.5 rounded-full bg-[#F0F0EC] text-[#888] font-medium">external</span>
+                      )}
+                      {localChar && (
+                          <span
+                              className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium">local</span>
+                      )}
+                  </div>
+              </div>
 
-        {/* Examples */}
-        {examples.length > 0 && (
-          <section className="space-y-2">
-            <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">Ví dụ</h2>
-            <div className="flex flex-wrap gap-1.5">
-              {examples.map(ex => (
-                <span key={ex} className="text-sm px-2.5 py-1 rounded-lg bg-[#F0F0EC] text-[#0F0F0F]">{ex}</span>
-              ))}
-            </div>
-          </section>
-        )}
+              {/* Stroke animation */}
+              <div className="flex justify-center">
+                  <StrokeBox char={char}/>
+              </div>
 
-        {/* Related */}
-        {related.length > 0 && (
-          <section className="space-y-2">
-            <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">Từ liên quan</h2>
-            <div className="flex flex-wrap gap-1.5">
-              {related.map(r => (
-                <span key={r} className="text-sm px-2.5 py-1 rounded-lg bg-white border border-[#E0E0DC] text-[#0F0F0F]">{r}</span>
-              ))}
-            </div>
-          </section>
-        )}
+              {/* Translation */}
+              {translationVi && (
+                  <section className="space-y-1.5">
+                      <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">Nghĩa</h2>
+                      <p className="text-sm text-[#0F0F0F]">{translationVi}</p>
+                  </section>
+              )}
 
-        {/* Radical */}
-        {radical && (
-          <section className="space-y-1.5">
-            <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">Bộ thủ</h2>
-            <span className="text-2xl">{radical}</span>
-          </section>
-        )}
+              {/* Etymology note */}
+              {etymNote ? (
+                  <section className="space-y-1.5">
+                      <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">Chiết tự</h2>
+                      <p className="text-sm leading-relaxed text-[#0F0F0F]">{etymNote}</p>
+                  </section>
+              ) : (
+                  <section className="space-y-2">
+                      <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">Chiết tự</h2>
+                      <div className="border border-dashed border-[#E0E0DC] rounded-xl p-4 text-center space-y-2">
+                          <p className="text-sm text-[#888]">Chưa có dữ liệu chiết tự.</p>
+                          <button onClick={openEdit}
+                                  className="text-sm text-[#0F0F0F] font-medium underline underline-offset-2">
+                              {localChar ? 'Chỉnh sửa ngay →' : 'Lưu về thiết bị để đóng góp →'}
+                          </button>
+                      </div>
+                  </section>
+              )}
 
-        {/* English definitions */}
-        {definitionsEn?.length && (
-          <section className="space-y-1.5">
-            <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">English</h2>
-            <p className="text-sm text-[#666]">{definitionsEn.slice(0, 3).join(' · ')}</p>
-          </section>
-        )}
+              {/* Components */}
+              {etymComponents.length > 0 && (
+                  <section className="space-y-2">
+                      <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">Thành phần</h2>
+                      <div className="space-y-2">
+                          {etymComponents.map((c, i) => (
+                              <div key={i}
+                                   className="flex items-start gap-3 px-3 py-2.5 bg-[#F8F7F5] border border-[#E8E8E4] rounded-xl">
+                                  <span className="text-2xl leading-none shrink-0 w-8 text-center">{c.char}</span>
+                                  <div className="flex flex-col min-w-0">
+                                      <div className="flex items-center gap-1.5 flex-wrap">
+                                          {c.sino_vietnamese &&
+                                              <span className="text-sm font-medium">{c.sino_vietnamese}</span>}
+                                          {c.pinyin && <span className="text-xs text-[#888]">({c.pinyin})</span>}
+                                          {c.componentName && (
+                                              <span
+                                                  className="text-[10px] px-1.5 py-0.5 rounded bg-[#ECEAE6] text-[#888]">{c.componentName}</span>
+                                          )}
+                                      </div>
+                                      {c.translation && <p className="text-xs text-[#666] mt-0.5">{c.translation}</p>}
+                                  </div>
+                              </div>
+                          ))}
+                      </div>
+                  </section>
+              )}
 
-        {curated?.contributor && (
-          <p className="text-xs text-[#BBB]">Contributed by {curated.contributor}</p>
-        )}
-      </div>
-      </ScrollArea>
+              {/* Examples */}
+              {examples.length > 0 && (
+                  <section className="space-y-2">
+                      <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">Ví dụ</h2>
+                      <div className="flex flex-wrap gap-1.5">
+                          {examples.map(ex => (
+                              <span key={ex}
+                                    className="text-sm px-2.5 py-1 rounded-lg bg-[#F0F0EC] text-[#0F0F0F]">{ex}</span>
+                          ))}
+                      </div>
+                  </section>
+              )}
 
-      <ToolBar buttons={buttons} />
-    </div>
+              {/* Related */}
+              {related.length > 0 && (
+                  <section className="space-y-2">
+                      <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">Từ liên quan</h2>
+                      <div className="flex flex-wrap gap-1.5">
+                          {related.map(r => (
+                              <span key={r}
+                                    className="text-sm px-2.5 py-1 rounded-lg bg-white border border-[#E0E0DC] text-[#0F0F0F]">{r}</span>
+                          ))}
+                      </div>
+                  </section>
+              )}
+
+              {/* Radical */}
+              {radical && (
+                  <section className="space-y-1.5">
+                      <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">Bộ thủ</h2>
+                      <span className="text-2xl">{radical}</span>
+                  </section>
+              )}
+
+              {/* English definitions */}
+              {definitionsEn?.length && (
+                  <section className="space-y-1.5">
+                      <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">English</h2>
+                      <p className="text-sm text-[#666]">{definitionsEn.slice(0, 3).join(' · ')}</p>
+                  </section>
+              )}
+
+              {curated?.contributor && (
+                  <p className="text-xs text-[#BBB]">Contributed by {curated.contributor}</p>
+              )}
+          </div>
+          <ToolBar buttons={buttons}/>
+      </>
   )
 }
