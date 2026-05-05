@@ -10,6 +10,7 @@ import { ContributeSheet } from '@/components/contribute/ContributeSheet'
 import { useSearchSheet } from '@/components/search/SearchSheet'
 import { StrokeBox } from '@/components/StrokeBox'
 import { useCharStore } from '@/store/useCharStore'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import type { CharEntry } from '@/lib/types'
 import type { ControlButton } from '@/components/shell/controls'
 
@@ -104,17 +105,18 @@ export function CharPageClient({ char, initialData }: Props) {
   ]
 
   const buttons: ControlButton[] = [
-    { icon: <ArrowLeft size={20} />, label: 'Back', position: 'left', onClick: () => router.back() },
+    { icon: <ArrowLeft size={20} />, label: 'Back', position: 'left', onClick: () => router.push('/') },
     ...rightButtons,
   ]
 
   return (
-    <div className="flex-1 flex flex-col relative">
+    <div className="char-page__wrapper flex-1 flex flex-col relative overflow-hidden" style={{ height: '100%' }}>
       <header className="shrink-0 px-5 pt-4 pb-2">
         <span className="text-sm font-medium text-[#888]">Chiết Tự</span>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-5 pb-28 space-y-6">
+      <ScrollArea className="char-page__scroll flex-1 px-5 pb-28" style={{ height: '100%' }}>
+        <div className="char-page__content space-y-6">
         {/* Hero */}
         <div className="flex flex-col items-center gap-2 pt-2">
           <div className="flex items-baseline gap-4">
@@ -242,6 +244,7 @@ export function CharPageClient({ char, initialData }: Props) {
           <p className="text-xs text-[#BBB]">Contributed by {curated.contributor}</p>
         )}
       </div>
+      </ScrollArea>
 
       <ToolBar buttons={buttons} />
     </div>

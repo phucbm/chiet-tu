@@ -13,9 +13,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="vi" className={`${geist.variable} h-full antialiased`}>
-      <body className="h-full bg-[#ECEAE6] text-[#0F0F0F]">
-        <div className="min-h-dvh flex justify-center">
-          <div className="w-full max-w-[600px] h-dvh flex flex-col relative bg-[#F8F7F5] overflow-hidden">
+      <body className="h-dvh bg-[#ECEAE6] text-[#0F0F0F]">
+        <div className="app__container min-h-dvh flex justify-center">
+          <div className="app__inner app__inner--mobile w-full max-w-[600px] h-dvh flex flex-col relative bg-[#F8F7F5] overflow-hidden">
             <BottomSheetProvider>
               {children}
             </BottomSheetProvider>

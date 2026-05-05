@@ -9,6 +9,7 @@ import { CharCard } from '@/components/CharCard'
 import { useSearchSheet } from '@/components/search/SearchSheet'
 import { useCharStore } from '@/store/useCharStore'
 import { getCurated } from '@/lib/client-dictionary'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import type { CharEntry } from '@/lib/types'
 import type { ControlButton } from '@/components/shell/controls'
 
@@ -43,13 +44,14 @@ export function HomeClient() {
   ]
 
   return (
-    <div className="flex-1 flex flex-col relative">
+    <div className="home__wrapper flex-1 flex flex-col relative overflow-hidden" style={{ height: '100%' }}>
       <header className="shrink-0 px-5 pt-6 pb-5">
         <h1 className="text-2xl font-bold tracking-tight">Chiết Tự</h1>
         <p className="text-xs text-[#999] mt-0.5">Từ điển nguồn gốc chữ Hán · open source</p>
       </header>
 
-      <div className="flex-1 overflow-y-auto px-4 pb-28 space-y-6">
+      <ScrollArea className="home__scroll flex-1 px-4" style={{ height: '100%' }}>
+        <div className="home__content pb-28 space-y-6">
         {/* My Characters */}
         {localChars.length > 0 && (
           <section>
@@ -97,6 +99,7 @@ export function HomeClient() {
 
         <AppFooter />
       </div>
+      </ScrollArea>
 
       <ToolBar buttons={buttons} />
     </div>

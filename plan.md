@@ -207,5 +207,6 @@ PR template fields: char, pinyin, sino_vietnamese, etymology.vi, sources, contri
 
 ## Deploy
 
-Vercel static. `output: 'export'`. Auto-deploy on merge to main.
+Cloudflare Pages static. `output: 'export'`. Auto-deploy on merge to main.
 Zero server cost. Zero infra to manage.
+
