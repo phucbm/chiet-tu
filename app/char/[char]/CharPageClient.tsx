@@ -1,18 +1,15 @@
 "use client"
 
-import {useEffect} from 'react'
-import {ArrowLeft, CopySimple, GitPullRequest, MagnifyingGlass, PencilSimple} from '@phosphor-icons/react'
+import {ArrowLeft, CopySimple, GitPullRequest, PencilSimple} from '@phosphor-icons/react'
 import {useRouter} from 'next/navigation'
-import {ToolBar} from '@/components/shell/ToolBar'
+import {useToolBarSlot} from '@/components/shell/ToolBarSlot'
 import {useBottomSheet} from '@/components/shell/BottomSheet'
 import {EditSheet} from '@/components/sheets/EditSheet'
 import {ContributeSheet} from '@/components/contribute/ContributeSheet'
-import {useSearchSheet} from '@/components/search/SearchSheet'
 import {StrokeBox} from '@/components/StrokeBox'
 import {useCharStore} from '@/store/useCharStore'
 import {useHeaderSlot} from '@/components/shell/HeaderSlot'
 import type {CharEntry} from '@/lib/types'
-import type {ControlButton} from '@/components/shell/controls'
 
 interface Props {
   char: string
@@ -39,27 +36,14 @@ function ClonePrompt({ onClone }: { onClone: () => void }) {
 export function CharPageClient({ char, initialData }: Props) {
   const router = useRouter()
   const { open } = useBottomSheet()
-  const openSearch = useSearchSheet()
   const { findLocal, cloneFromRepo, cloneFromGen } = useCharStore()
 
   const localChar = findLocal(char)
   const curated = initialData.source === 'repo' ? initialData : null
 
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault()
-        openSearch()
-      }
-    }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [openSearch])
+  useHeaderSlot(<span className="text-sm font-medium text-[#888]">Chiết Tự</span>)
 
   const entry = localChar ?? initialData
-
-    useHeaderSlot(<span className="text-sm font-medium text-[#888]">Chiết Tự</span>)
-
   const sinoViet = entry.sino_vietnamese
   const pinyin = entry.pinyin
   const trad = entry.trad
@@ -98,18 +82,11 @@ export function CharPageClient({ char, initialData }: Props) {
     open(<ContributeSheet char={localChar} repoOriginal={curated} />, `Đóng góp ${char}`)
   }
 
-  const rightButtons: ControlButton[] = [
-    ...(localChar
-      ? [{ icon: <GitPullRequest size={20} />, label: 'Contribute', position: 'right' as const, onClick: openContribute }]
-      : []),
-    { icon: <PencilSimple size={20} />, label: 'Edit', position: 'right' as const, onClick: openEdit },
-    { icon: <MagnifyingGlass size={20} />, label: 'Search', position: 'right' as const, onClick: openSearch },
-  ]
-
-  const buttons: ControlButton[] = [
+  useToolBarSlot([
     { icon: <ArrowLeft size={20} />, label: 'Back', position: 'left', onClick: () => router.push('/') },
-    ...rightButtons,
-  ]
+    ...(localChar ? [{ icon: <GitPullRequest size={20} />, label: 'Contribute', position: 'right' as const, onClick: openContribute }] : []),
+    { icon: <PencilSimple size={20} />, label: 'Edit', position: 'right' as const, onClick: openEdit },
+  ])
 
   return (
       <>
@@ -249,7 +226,6 @@ export function CharPageClient({ char, initialData }: Props) {
                   <p className="text-xs text-[#BBB]">Contributed by {curated.contributor}</p>
               )}
           </div>
-          <ToolBar buttons={buttons}/>
       </>
   )
 }

@@ -4,6 +4,9 @@ import "./globals.css"
 import {BottomSheetProvider} from "@/components/shell/BottomSheet"
 import {ScrollArea} from "@/components/ui/scroll-area";
 import {HeaderSlotProvider, HeaderSlotRenderer} from "@/components/shell/HeaderSlot";
+import {ToolBarSlotProvider} from "@/components/shell/ToolBarSlot";
+import {SearchShortcut} from "@/components/search/SearchSheet";
+import {GlobalToolBarButtons} from "@/components/shell/GlobalToolBarButtons";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" })
 
@@ -20,17 +23,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             className="app_inner min-h-full overscroll-none
         rounded-xl w-full max-w-[600px] flex flex-col relative bg-[#F8F7F5] overflow-hidden ring">
             <HeaderSlotProvider>
-                <BottomSheetProvider>
-                    <ScrollArea className="app_scroll" style={{height: '100%'}}>
-                        <header className="app_header sticky top-0 left-0 w-full bg-gray-300 px-4 py-3 z-20">
-                            <HeaderSlotRenderer />
-                        </header>
+                <ToolBarSlotProvider>
+                    <BottomSheetProvider>
+                        <SearchShortcut />
+                        <GlobalToolBarButtons />
+                        <ScrollArea className="app_scroll" style={{height: '100%'}}>
+                            <header className="app_header sticky top-0 left-0 w-full bg-gray-300 px-4 py-3 z-20">
+                                <HeaderSlotRenderer />
+                            </header>
 
-                        <div className="app_content px-4 py-6">
-                            {children}
-                        </div>
-                    </ScrollArea>
-                </BottomSheetProvider>
+                            <div className="app_content px-4 py-6">
+                                {children}
+                            </div>
+                        </ScrollArea>
+                    </BottomSheetProvider>
+                </ToolBarSlotProvider>
             </HeaderSlotProvider>
         </div>
         </body>

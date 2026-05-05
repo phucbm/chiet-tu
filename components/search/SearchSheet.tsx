@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { isSearchShortcut } from '@/lib/keys'
 import { MagnifyingGlass, PenNib } from '@phosphor-icons/react'
 import { useBottomSheet } from '@/components/shell/BottomSheet'
 import { HanziInput } from '@/components/hanzi/HanziInput'
@@ -163,5 +164,20 @@ function SearchSheetContent() {
 
 export function useSearchSheet() {
   const { open } = useBottomSheet()
-  return () => open(<SearchSheetContent />, 'Tìm kiếm')
+  return useCallback(() => open(<SearchSheetContent />, 'Tìm kiếm'), [open])
+}
+
+export function SearchShortcut() {
+  const openSearch = useSearchSheet()
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (isSearchShortcut(e)) {
+        e.preventDefault()
+        openSearch()
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [openSearch])
+  return null
 }

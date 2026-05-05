@@ -1,22 +1,16 @@
 "use client"
 
 import { useEffect, useState } from 'react'
-import { MagnifyingGlass } from '@phosphor-icons/react'
 import { useRouter } from 'next/navigation'
-import { ToolBar } from '@/components/shell/ToolBar'
 import { AppFooter } from '@/components/shell/AppFooter'
 import { CharCard } from '@/components/CharCard'
-import { useSearchSheet } from '@/components/search/SearchSheet'
 import { useCharStore } from '@/store/useCharStore'
 import { getCurated } from '@/lib/client-dictionary'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { useHeaderSlot } from '@/components/shell/HeaderSlot'
 import type { CharEntry } from '@/lib/types'
-import type { ControlButton } from '@/components/shell/controls'
 
 export function HomeClient() {
   const router = useRouter()
-  const openSearch = useSearchSheet()
   const { chars: localChars } = useCharStore()
   const [chars, setChars] = useState<CharEntry[]>([])
 
@@ -31,25 +25,7 @@ export function HomeClient() {
     getCurated().then(setChars).catch(() => {})
   }, [])
 
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault()
-        openSearch()
-      }
-    }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [openSearch])
 
-  const buttons: ControlButton[] = [
-    {
-      icon: <MagnifyingGlass size={22} />,
-      label: 'Search',
-      position: 'right',
-      onClick: openSearch,
-    },
-  ]
 
   return (
     <>
@@ -104,7 +80,6 @@ export function HomeClient() {
                 <AppFooter />
             </div>
         </div>
-        <ToolBar buttons={buttons} />
     </>
   )
 }

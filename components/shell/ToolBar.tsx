@@ -1,32 +1,38 @@
 "use client"
 
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import type { ControlButton } from './controls'
 
 function ToolBarButton({ btn }: { btn: ControlButton }) {
   return (
-    <button
+    <motion.button
+      layout
       onClick={btn.onClick}
       aria-label={btn.label}
-      className="relative flex flex-col items-center justify-center gap-1 w-12 h-12 transition-all active:scale-90 text-[#0F0F0F]"
+      initial={{ opacity: 0, scale: 0.5 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.5 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+      className="relative flex flex-col items-center justify-center gap-1 w-12 h-12 active:scale-90 text-[#0F0F0F]"
     >
       {btn.icon}
-    </button>
+    </motion.button>
   )
 }
 
 function ToolBarGroup({ buttons }: { buttons: ControlButton[] }) {
-  const single = buttons.length === 1
   return (
-    <div
-      className={`flex items-center rounded-full border border-white shadow-xl backdrop-blur bg-white/50 ${
-        single ? 'w-12 h-12 justify-center' : 'px-1 gap-0.5'
-      }`}
+    <motion.div
+      layout
+      transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+      className="flex items-center h-12 px-1 gap-0.5 rounded-full border border-white shadow-xl backdrop-blur bg-white/50"
     >
-      {buttons.map((btn, i) => (
-        <ToolBarButton key={i} btn={btn} />
-      ))}
-    </div>
+      <AnimatePresence mode="popLayout">
+        {buttons.map(btn => (
+          <ToolBarButton key={btn.label} btn={btn} />
+        ))}
+      </AnimatePresence>
+    </motion.div>
   )
 }
 
