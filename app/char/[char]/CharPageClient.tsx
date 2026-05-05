@@ -6,10 +6,11 @@ import {useToolBarSlot} from '@/components/shell/ToolBarSlot'
 import {useBottomSheet} from '@/components/shell/BottomSheet'
 import {EditSheet} from '@/components/sheets/EditSheet'
 import {ContributeSheet} from '@/components/contribute/ContributeSheet'
-import {StrokeBox} from '@/components/StrokeBox'
+import {StrokeBox} from '@/components/word/StrokeBox'
 import {useCharStore} from '@/store/useCharStore'
 import {useHeaderSlot} from '@/components/shell/HeaderSlot'
 import type {CharEntry} from '@/lib/types'
+import {WordInfoBox} from "@/components/word/WordInfoBox";
 
 interface Props {
   char: string
@@ -44,6 +45,7 @@ export function CharPageClient({ char, initialData }: Props) {
   useHeaderSlot(<span className="text-sm font-medium text-[#888]">Chiết Tự</span>)
 
   const entry = localChar ?? initialData
+  const isSingleChar = [...entry.char].length === 1
   const sinoViet = entry.sino_vietnamese
   const pinyin = entry.pinyin
   const trad = entry.trad
@@ -91,39 +93,9 @@ export function CharPageClient({ char, initialData }: Props) {
   return (
       <>
           <div className="char-page__content space-y-6">
-              {/* Hero */}
-              <div className="flex flex-col items-center gap-2 pt-2">
-                  <div className="flex items-baseline gap-4">
-                      <span className="text-8xl leading-none">{char}</span>
-                      {trad && trad !== char && (
-                          <div className="flex flex-col items-center">
-                              <span className="text-[10px] text-[#AAA] mb-1">phồn thể</span>
-                              <span className="text-5xl leading-none text-[#888]">{trad}</span>
-                          </div>
-                      )}
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-[#666]">
-                      {sinoViet && <span className="font-medium text-[#0F0F0F]">{sinoViet}</span>}
-                      {pinyin && sinoViet && <span className="text-[#CCC]">·</span>}
-                      {pinyin && <span>{pinyin}</span>}
-                      {strokes && <span className="text-[#CCC]">·</span>}
-                      {strokes && <span>{strokes} nét</span>}
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                      {initialData.source === 'dictionary' && !localChar && (
-                          <span
-                              className="text-[10px] px-2 py-0.5 rounded-full bg-[#F0F0EC] text-[#888] font-medium">external</span>
-                      )}
-                      {localChar && (
-                          <span
-                              className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium">local</span>
-                      )}
-                  </div>
-              </div>
-
-              {/* Stroke animation */}
-              <div className="flex justify-center">
-                  <StrokeBox char={char}/>
+              <div className="word-stroke grid gap-4" style={{ gridTemplateColumns: isSingleChar ? "1fr 1fr" : "1fr" }}>
+                  <WordInfoBox entry={entry}/>
+                  {isSingleChar && <StrokeBox simp={entry.char} trad={entry.trad ?? entry.char}/>}
               </div>
 
               {/* Translation */}
