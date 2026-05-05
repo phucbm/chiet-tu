@@ -5,7 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --color-highlight: var(--highlight-bg);
+    --color-ct-highlight:var(--ct-highlight-bg);
+    --color-ct-body:var(--ct-body-bg);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
@@ -50,7 +51,8 @@
 }
 
 :root {
-    --highlight-bg:#ebdfd0;
+    --ct-highlight-bg:#ebdfd0;
+    --ct-body-bg:#ebdfd0;
 
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);

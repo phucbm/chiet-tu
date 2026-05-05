@@ -103,35 +103,47 @@ export function StrokeBox({char: singleChar, simp, trad, defaultTrad = false, on
     }, [character]);
 
     return (
-        <div className="rounded-lg shadow bg-white p-3 flex flex-col items-center gap-3 relative">
+        <div className="rounded-lg shadow bg-white flex flex-col items-center gap-3 relative">
             <div className="absolute top-1 right-1 z-20 flex items-center justify-end w-full">
                 <button
                     type="button"
                     title="Xem lại"
                     onClick={() => writerRef.current?.animateCharacter()}
-                    className={cn("p-1 rounded hover:bg-background/50",
+                    className={cn("p-1 rounded hover:bg-background/50 opacity-30",
                         !dataAvailable && "invisible"
                     )}
                 >
                     <RotateCcw className="h-3.5 w-3.5 opacity-60 hover:opacity-100"/>
                 </button>
             </div>
-            <div
-                ref={containerRef}
-                className="flex items-center justify-center"
-                style={{width: 140, height: 140}}
-                aria-label={`Hoạt ảnh nét chữ: ${character}`}
-            >
-                {loading && (
-                    <div className="rounded border-2 border-dashed border-muted animate-pulse font-chinese text-6xl text-muted-foreground/30">
-                        {character}
-                    </div>
-                )}
-                {!loading && !dataAvailable && (
-                    <span className="font-chinese text-6xl leading-none select-all text-muted-foreground/50">
-                        {character}
-                    </span>
-                )}
+            <div className="relative" style={{width: 140, height: 140}}>
+                <svg className="absolute inset-0 w-full h-full">
+                    <defs>
+                        <pattern id={`grid-${character}`} width="46.67" height="46.67" patternUnits="userSpaceOnUse">
+                            <path d="M 46.67 0 L 0 0 0 46.67" fill="none" stroke="#d1d5db" strokeWidth="0.5"/>
+                        </pattern>
+                    </defs>
+                    <rect width="140" height="140" fill={`url(#grid-${character})`}/>
+                    <line x1="70" y1="0" x2="70" y2="140" stroke="#d1d5db" strokeWidth="0.75"/>
+                    <line x1="0" y1="70" x2="140" y2="70" stroke="#d1d5db" strokeWidth="0.75"/>
+                </svg>
+                <div
+                    ref={containerRef}
+                    className="absolute inset-0"
+                    style={{width: 140, height: 140}}
+                    aria-label={`Hoạt ảnh nét chữ: ${character}`}
+                >
+                    {loading && (
+                        <div className="rounded border-2 border-dashed border-muted animate-pulse font-chinese text-6xl text-muted-foreground/30">
+                            {character}
+                        </div>
+                    )}
+                    {!loading && !dataAvailable && (
+                        <span className="font-chinese text-6xl leading-none select-all text-muted-foreground/50">
+                            {character}
+                        </span>
+                    )}
+                </div>
             </div>
             {!dataAvailable && (
             <div className="flex items-center gap-2">

@@ -11,7 +11,7 @@ export function WordInfoBox({ entry }: WordInfoBoxProps) {
     const showTrad = entry.trad && entry.trad !== entry.char;
 
   return (
-      <div className="relative w-full rounded-lg shadow bg-highlight p-3">
+      <div className="relative w-full rounded-lg bg-ct-highlight p-4">
 
         {/* Stroke boxes */}
         <div className="flex flex-wrap justify-evenly gap-4 mb-5">
