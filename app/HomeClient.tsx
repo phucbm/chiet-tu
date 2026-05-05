@@ -29,7 +29,7 @@ export function HomeClient() {
 
   return (
     <>
-        <div className="content-home ring flex-1 flex flex-col relative">
+        <div className="content-home flex-1 flex flex-col relative">
 
             <div className="home__content pb-28 space-y-6">
                 {/* My Characters */}

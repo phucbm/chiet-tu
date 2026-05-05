@@ -18,21 +18,21 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="vi" className={`${geist.variable} h-full antialiased overscroll-none`}>
-        <body className="app_body h-dvh bg-[#ECEAE6] p-2 flex justify-center overscroll-none">
+        <body className="app_body h-dvh bg-[#ECEAE6] md:p-2 flex justify-center overscroll-none">
         <div
             className="app_inner min-h-full overscroll-none
-        rounded-xl w-full max-w-[600px] flex flex-col relative bg-[#F8F7F5] overflow-hidden ring">
+        md:rounded-xl w-full md:max-w-[680px] flex flex-col relative bg-[#F8F7F5] overflow-hidden shadow-lg">
             <HeaderSlotProvider>
                 <ToolBarSlotProvider>
                     <BottomSheetProvider>
                         <SearchShortcut />
                         <GlobalToolBarButtons />
                         <ScrollArea className="app_scroll" style={{height: '100%'}}>
-                            <header className="app_header sticky top-0 left-0 w-full bg-gray-300 px-4 py-3 z-20">
+                            <header className="app_header sticky top-0 left-0 w-full border border-white shadow backdrop-blur bg-white/50 px-4 py-3 z-20">
                                 <HeaderSlotRenderer />
                             </header>
 
-                            <div className="app_content px-4 py-6">
+                            <div className="app_content px-4 pt-6 pb-24">
                                 {children}
                             </div>
                         </ScrollArea>

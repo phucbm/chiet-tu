@@ -90,7 +90,7 @@ export function CharPageClient({ char, initialData }: Props) {
 
   return (
       <>
-          <div className="char-page__content space-y-6 ring">
+          <div className="char-page__content space-y-6">
               {/* Hero */}
               <div className="flex flex-col items-center gap-2 pt-2">
                   <div className="flex items-baseline gap-4">

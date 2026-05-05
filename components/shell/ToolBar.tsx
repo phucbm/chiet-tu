@@ -1,37 +1,37 @@
 "use client"
 
-import { motion, AnimatePresence } from 'framer-motion'
-import type { ControlButton } from './controls'
+import {motion} from 'framer-motion'
+import type {ControlButton} from './controls'
+import {cn} from "@/lib/utils";
 
 function ToolBarButton({ btn }: { btn: ControlButton }) {
   return (
-    <motion.button
-      layout
+    <button
       onClick={btn.onClick}
       aria-label={btn.label}
-      initial={{ opacity: 0, scale: 0.5 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.5 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 28 }}
       className="relative flex flex-col items-center justify-center gap-1 w-12 h-12 active:scale-90 text-[#0F0F0F]"
     >
       {btn.icon}
-    </motion.button>
+    </button>
   )
 }
 
-function ToolBarGroup({ buttons }: { buttons: ControlButton[] }) {
+function ToolBarGroup({ buttons, position }: { buttons: ControlButton[], position: 'left' | 'right' }) {
+  const visible = buttons.length > 0
   return (
     <motion.div
-      layout
-      transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-      className="flex items-center h-12 px-1 gap-0.5 rounded-full border border-white shadow-xl backdrop-blur bg-white/50"
+      initial={false}
+      animate={visible ? { x: 0, opacity: 1 } : { x: position === 'left' ? '-200%' : '200%', opacity: 0 }}
+      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+      style={{ pointerEvents: visible ? 'auto' : 'none' }}
+      className={cn(
+        "toolbar-wrapper flex items-center h-12 gap-0.5 rounded-full border border-white shadow-xl backdrop-blur bg-white/50",
+        buttons.length > 1 ? "px-2" : ""
+      )}
     >
-      <AnimatePresence mode="popLayout">
-        {buttons.map(btn => (
-          <ToolBarButton key={btn.label} btn={btn} />
-        ))}
-      </AnimatePresence>
+      {buttons.map(btn => (
+        <ToolBarButton key={btn.label} btn={btn} />
+      ))}
     </motion.div>
   )
 }
@@ -53,8 +53,8 @@ export function ToolBar({ buttons, visible = true }: ToolBarProps) {
       style={{ pointerEvents: visible ? 'auto' : 'none' }}
       className="absolute bottom-0 inset-x-0 flex items-end justify-between px-5 pb-6 z-20"
     >
-      <div>{left.length > 0 ? <ToolBarGroup buttons={left} /> : <div className="w-12" />}</div>
-      <div>{right.length > 0 ? <ToolBarGroup buttons={right} /> : null}</div>
+      <ToolBarGroup buttons={left} position="left" />
+      <ToolBarGroup buttons={right} position="right" />
     </motion.div>
   )
 }
