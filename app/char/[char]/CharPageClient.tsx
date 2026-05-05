@@ -93,9 +93,8 @@ export function CharPageClient({ char, initialData }: Props) {
   return (
       <>
           <div className="char-page__content space-y-6">
-              <div className="word-stroke grid gap-4" style={{ gridTemplateColumns: isSingleChar ? "1fr 1fr" : "1fr" }}>
+              <div className="word-stroke grid gap-4" style={{gridTemplateColumns: "1fr"}}>
                   <WordInfoBox entry={entry}/>
-                  {isSingleChar && <StrokeBox simp={entry.char} trad={entry.trad ?? entry.char}/>}
               </div>
 
               {/* Translation */}
