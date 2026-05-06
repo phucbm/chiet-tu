@@ -9,6 +9,8 @@ export interface EtymologyComponent {
 export interface CharEntry {
   char: string
   trad?: string
+  hasTrad?: string
+  hasSimp?: string
   pinyin: string
   sino_vietnamese: string
   strokes?: number
