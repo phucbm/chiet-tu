@@ -28,7 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                         <SearchShortcut />
                         <GlobalToolBarButtons />
                         <ScrollArea className="app_scroll" style={{height: '100%'}}>
-                            <header className="app_header min-h-[50px] sticky top-0 left-0 w-full border border-white shadow backdrop-blur bg-white/50 px-4 py-3 z-20">
+                            <header className="app_header min-h-[60px] sticky top-0 left-0 w-full border border-white shadow backdrop-blur bg-white/50 px-4 py-3 z-20">
                                 <HeaderSlotRenderer />
                             </header>
 

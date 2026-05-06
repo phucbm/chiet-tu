@@ -12,7 +12,14 @@ declare global {
                 el: HTMLElement,
                 char: string,
                 options: Record<string, unknown>
-            ) => { animateCharacter: () => void }
+            ) => {
+                animateCharacter: () => void;
+                hideCharacter: () => void;
+                showCharacter: () => void;
+                updateColor: (target: string, color: string) => void;
+                setCharacter: (char: string) => void;
+                clear: () => void;
+            }
         }
     }
 }
@@ -33,14 +40,27 @@ export function StrokeBox({char: singleChar, simp, trad, defaultTrad = false, on
     const [dataAvailable, setDataAvailable] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    const writerRef = useRef<{ animateCharacter: () => void } | null>(null);
+    const writerRef = useRef<{ animateCharacter: () => void; clear?: () => void } | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const wrapperRef = useRef<HTMLDivElement>(null);
     const generationRef = useRef(0);
+    const [containerKey, setContainerKey] = useState(0);
 
     useEffect(() => {
-        setLoading(true);
-        setDataAvailable(false);
-    }, [character]);
+        const el = wrapperRef.current;
+        if (!el) return;
+
+        const observer = new ResizeObserver(() => {
+            setContainerKey(k => k + 1);
+        });
+        observer.observe(el);
+
+        return () => observer.disconnect();
+    }, []);
+
+    useEffect(() => {
+        onAvailabilityChange?.(dataAvailable);
+    }, [dataAvailable, onAvailabilityChange]);
 
     useEffect(() => {
         if (!hasDifferentTrad) return;
@@ -59,9 +79,10 @@ export function StrokeBox({char: singleChar, simp, trad, defaultTrad = false, on
 
             function init() {
                 if (!el || !window.HanziWriter || cancelled) return;
+                const size = el.clientWidth || 140; // use container width
                 writerRef.current = window.HanziWriter.create(el, character, {
-                    width: 140,
-                    height: 140,
+                    width: size,
+                    height: size,
                     padding: 5,
                     showOutline: true,
                     strokeAnimationSpeed: 1,
@@ -100,15 +121,16 @@ export function StrokeBox({char: singleChar, simp, trad, defaultTrad = false, on
             clearTimeout(timeout);
             writerRef.current = null;
         };
-    }, [character]);
+    }, [character, containerKey]);
 
     return (
         <div>
-            <div className="rounded-lg overflow-hidden shadow bg-white flex flex-col items-center gap-3 relative">
+            <div
+                className="rounded-lg md:w-[200px] w-[140px] overflow-hidden shadow bg-white flex flex-col items-center gap-3 relative">
                 {/*redraw*/}
                 {
                     dataAvailable && (
-                        <div className="absolute top-1 right-1 z-20 flex items-center justify-end w-full">
+                        <div className="absolute top-1 right-1 z-20">
                             <button
                                 type="button"
                                 title="Xem lại"
@@ -120,26 +142,25 @@ export function StrokeBox({char: singleChar, simp, trad, defaultTrad = false, on
                         </div>
                     )
                 }
-                <div className="relative" style={{width: 140, height: 140}}>
+                <div ref={wrapperRef} className="relative w-full aspect-square">
                     {/*draw grid*/}
-                    <svg
-                        className="stroke-draw-grid absolute inset-0 w-full h-full"
-                        viewBox="0 0 140 140"
-                        preserveAspectRatio="xMidYMid meet"
-                    >
-                        <line className="stroke-draw-grid__line--vertical-1 opacity-40" x1="35" y1="0" x2="35" y2="140" stroke="#d1d5db" strokeWidth="0.75"/>
-                        <line className="stroke-draw-grid__line--vertical-2" x1="70" y1="0" x2="70" y2="140" stroke="#d1d5db" strokeWidth="0.75"/>
-                        <line className="stroke-draw-grid__line--vertical-3 opacity-40" x1="105" y1="0" x2="105" y2="140" stroke="#d1d5db" strokeWidth="0.75"/>
-
-                        <line className="stroke-draw-grid__line--horizontal-1 opacity-40" x1="0" y1="35" x2="140" y2="35" stroke="#d1d5db" strokeWidth="0.75"/>
-                        <line className="stroke-draw-grid__line--horizontal-2" x1="0" y1="70" x2="140" y2="70" stroke="#d1d5db" strokeWidth="0.75"/>
-                        <line className="stroke-draw-grid__line--horizontal-3 opacity-40" x1="0" y1="105" x2="140" y2="105" stroke="#d1d5db" strokeWidth="0.75"/>
-                    </svg>
+                    <div className="absolute inset-0 pointer-events-none">
+                        <div className="flex justify-evenly absolute inset-0">
+                            <i className="border border-dashed"></i>
+                            <i className="border"></i>
+                            <i className="border border-dashed"></i>
+                        </div>
+                        <div className="flex flex-col justify-evenly absolute inset-0">
+                            <i className="border border-dashed"></i>
+                            <i className="border"></i>
+                            <i className="border border-dashed"></i>
+                        </div>
+                    </div>
                     {/*canvas*/}
                     <div
                         ref={containerRef}
+                        key={containerKey}
                         className="absolute inset-0 size-full flex justify-center items-center"
-                        style={{width: 140, height: 140}}
                         aria-label={`Hoạt ảnh nét chữ: ${character}`}
                     >
                         {loading || !dataAvailable && (

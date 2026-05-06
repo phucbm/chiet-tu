@@ -11,6 +11,7 @@ import {useCharStore} from '@/store/useCharStore'
 import type {CharEntry} from '@/lib/types'
 import {WordInfoBox} from "@/components/word/WordInfoBox";
 import {useCharHistory} from "@/hooks/useCharHistory";
+import {useHeaderSlot} from "@/components/shell/HeaderSlot";
 
 interface Props {
     char: string
@@ -97,6 +98,16 @@ export function CharPageClient({ char, initialData }: Props) {
         }] : []),
         {icon: <PencilSimple size={20}/>, label: 'Edit', position: 'right' as const, onClick: openEdit},
     ])
+
+    useHeaderSlot(
+        <>
+            <h1 className="text-xl tracking-tight">
+                <span>Chiết Tự:</span>
+                <span>{entry.sino_vietnamese}</span>
+                <span>{entry.pinyin}</span>
+            </h1>
+        </>
+    )
 
     return (
         <>
