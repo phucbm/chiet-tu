@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { ArrowLeft } from '@phosphor-icons/react'
+import { ArrowLeft } from 'lucide-react'
 
 interface SheetEntry {
   content: ReactNode

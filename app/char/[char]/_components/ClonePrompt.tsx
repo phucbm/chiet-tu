@@ -1,6 +1,6 @@
 "use client"
 
-import { CopySimple } from '@phosphor-icons/react'
+import { Copy } from 'lucide-react'
 
 export function ClonePrompt({ onClone }: { onClone: () => void }) {
     return (
@@ -12,7 +12,7 @@ export function ClonePrompt({ onClone }: { onClone: () => void }) {
                 onClick={onClone}
                 className="w-full py-3.5 bg-[#0F0F0F] rounded-xl text-sm font-semibold text-white hover:bg-[#2a2a2a] transition-colors flex items-center justify-center gap-2"
             >
-                <CopySimple size={15}/>
+                <Copy size={15}/>
                 Lưu về thiết bị
             </button>
         </div>

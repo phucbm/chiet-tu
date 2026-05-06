@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowCounterClockwise } from '@phosphor-icons/react'
+import { RotateCcw } from 'lucide-react'
 import type { CharEntry } from '@/lib/types'
 
 interface Props {
@@ -19,7 +19,7 @@ export function DangerZone({ localChar, onReset, onDelete, resetting }: Props) {
                     disabled={resetting}
                     className="flex items-center gap-1.5 text-xs text-[#BBB] hover:text-[#888] disabled:opacity-40 transition-colors"
                 >
-                    <ArrowCounterClockwise size={12}/>
+                    <RotateCcw size={12}/>
                     {resetting ? 'Đang khôi phục…' : 'Khôi phục bản gốc'}
                 </button>
             )}

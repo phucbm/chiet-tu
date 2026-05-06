@@ -1,6 +1,6 @@
 "use client"
 
-import { Plus } from '@phosphor-icons/react'
+import { Plus } from 'lucide-react'
 import type { EtymologyComponent } from '@/lib/types'
 import { SectionHeader } from './SectionHeader'
 import { ComponentRow } from './ComponentRow'

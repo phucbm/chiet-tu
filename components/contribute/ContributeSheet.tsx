@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from 'react'
-import { ArrowSquareOut, GitPullRequest, Warning } from '@phosphor-icons/react'
+import { ExternalLink, GitPullRequest, TriangleAlert } from 'lucide-react'
 import { useBottomSheet } from '@/components/shell/BottomSheet'
 import { contributeChar, getPRListUrl, prTitle } from '@/lib/github'
 import { charChangeSummary } from '@/lib/utils'
@@ -66,7 +66,7 @@ export function ContributeSheet({ char, repoOriginal }: Props) {
             rel="noreferrer"
             className="w-full py-3.5 bg-[#0F0F0F] rounded-xl text-sm font-semibold text-white hover:bg-[#2a2a2a] transition-colors flex items-center justify-center gap-2"
           >
-            <ArrowSquareOut size={14} />
+            <ExternalLink size={14} />
             Xem PR trên GitHub
           </a>
           <button onClick={close} className="w-full py-2 text-sm text-[#AAA] hover:text-[#555] transition-colors">
@@ -81,7 +81,7 @@ export function ContributeSheet({ char, repoOriginal }: Props) {
           disabled={!canSubmit}
           className="w-full py-3.5 bg-[#0F0F0F] rounded-xl text-sm font-semibold text-white disabled:opacity-40 hover:bg-[#2a2a2a] transition-colors flex items-center justify-center gap-2"
         >
-          <GitPullRequest size={15} weight="fill" />
+          <GitPullRequest size={15} />
           Gửi đóng góp
         </button>
       )
@@ -204,7 +204,7 @@ export function ContributeSheet({ char, repoOriginal }: Props) {
 
       {error && (
         <div className="flex items-start gap-2 text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">
-          <Warning size={12} className="shrink-0 mt-0.5" />
+          <TriangleAlert size={12} className="shrink-0 mt-0.5" />
           <span className="break-all">{error}</span>
         </div>
       )}

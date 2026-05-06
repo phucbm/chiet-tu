@@ -1,6 +1,6 @@
 "use client"
 
-import { Plus, Trash } from '@phosphor-icons/react'
+import { Plus, Trash2 } from 'lucide-react'
 import type { Sentence } from '@/lib/types'
 import { SectionHeader } from './SectionHeader'
 
@@ -47,7 +47,7 @@ export function ExamplesSection({ isLocal, isActive, onToggle, sentences, onSent
                                     onClick={() => onSentencesChange(sentences.filter((_, j) => j !== i))}
                                     className="flex items-center justify-center w-9 h-9 shrink-0 rounded-xl text-[#BBB] hover:text-red-500 hover:bg-red-50 transition-colors border border-[#E0E0DC]"
                                 >
-                                    <Trash size={14}/>
+                                    <Trash2 size={14}/>
                                 </button>
                             </div>
                             <input

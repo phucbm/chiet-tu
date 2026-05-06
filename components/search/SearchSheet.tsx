@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { isSearchShortcut } from '@/lib/keys'
-import { MagnifyingGlass, PenNib } from '@phosphor-icons/react'
+import { Search, PenLine } from 'lucide-react'
 import { useBottomSheet } from '@/components/shell/BottomSheet'
 import { HanziInput } from '@/components/hanzi/HanziInput'
 import { cn } from '@/lib/utils'
@@ -103,7 +103,7 @@ function SearchSheetContent() {
                 : 'text-[#888] hover:text-[#0F0F0F]'
             )}
           >
-            {m === 'text' ? <MagnifyingGlass className="size-3" /> : <PenNib className="size-3" />}
+            {m === 'text' ? <Search className="size-3" /> : <PenLine className="size-3" />}
             {m === 'text' ? 'Gõ tìm kiếm' : 'Viết tay'}
           </button>
         ))}
@@ -113,7 +113,7 @@ function SearchSheetContent() {
         <>
           {/* Search input */}
           <div className="flex items-center gap-2 px-5 py-3 border-b border-[#E0E0DC] shrink-0">
-            <MagnifyingGlass size={16} className="text-[#888] shrink-0" />
+            <Search size={16} className="text-[#888] shrink-0" />
             <input
               ref={inputRef}
               type="text"

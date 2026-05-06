@@ -1,6 +1,6 @@
 "use client"
 
-import { Plus, Trash } from '@phosphor-icons/react'
+import { Plus, Trash2 } from 'lucide-react'
 import { SectionHeader } from './SectionHeader'
 import { CharLink } from './CharLink'
 
@@ -43,7 +43,7 @@ export function RelatedSection({ isLocal, isActive, onToggle, related, onRelated
                                 onChange={e => onRelatedChange(related.map((x, j) => j === i ? e.target.value : x))}
                             />
                             <button onClick={() => onRelatedChange(related.filter((_, j) => j !== i))} className="text-[#BBB] hover:text-red-500 transition-colors">
-                                <Trash size={11}/>
+                                <Trash2 size={11}/>
                             </button>
                         </div>
                     ))}

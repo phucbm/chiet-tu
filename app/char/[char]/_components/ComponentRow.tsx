@@ -1,6 +1,6 @@
 "use client"
 
-import { Trash } from '@phosphor-icons/react'
+import { Trash2 } from 'lucide-react'
 import { pinyin as getPinyin } from 'pinyin-pro'
 import type { EtymologyComponent } from '@/lib/types'
 
@@ -29,7 +29,7 @@ export function ComponentRow({ comp, onChange, onRemove }: Props) {
                 <input className={inputCls + ' w-16 text-center text-xl'} placeholder="字" value={comp.char} onChange={e => handleCharChange(e.target.value)} maxLength={1}/>
                 <input className={inputCls + ' flex-1'} placeholder="Tên thành phần" value={comp.componentName} onChange={e => onChange({ ...comp, componentName: e.target.value })}/>
                 <button onClick={onRemove} className="flex items-center justify-center w-9 h-9 shrink-0 rounded-xl text-[#BBB] hover:text-red-500 hover:bg-red-50 transition-colors border border-[#E0E0DC]">
-                    <Trash size={14}/>
+                    <Trash2 size={14}/>
                 </button>
             </div>
             <div className="flex gap-2">

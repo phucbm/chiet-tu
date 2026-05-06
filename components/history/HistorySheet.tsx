@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { ClockCounterClockwise, Trash, X } from '@phosphor-icons/react'
+import { History, Trash2, X } from 'lucide-react'
 import { useBottomSheet } from '@/components/shell/BottomSheet'
 import { useCharHistory } from '@/hooks/useCharHistory'
 import { cn } from '@/lib/utils'
@@ -85,7 +85,7 @@ function HistorySheetContent() {
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-3 border-b border-[#E0E0DC] shrink-0">
         <div className="flex items-center gap-2">
-          <ClockCounterClockwise size={16} className="text-[#888]" />
+          <History size={16} className="text-[#888]" />
           <span className="text-sm font-medium">Lịch sử xem</span>
           {entries.length > 0 && (
             <span className="text-[11px] text-[#AAA]">({entries.length})</span>
@@ -96,7 +96,7 @@ function HistorySheetContent() {
             onClick={() => clear()}
             className="flex items-center gap-1 text-xs text-[#AAA] hover:text-[#0F0F0F] transition-colors"
           >
-            <Trash size={13} />
+            <Trash2 size={13} />
             Xóa tất cả
           </button>
         )}
@@ -124,7 +124,7 @@ function HistorySheetContent() {
       <div className="overflow-y-auto">
         {entries.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 gap-2">
-            <ClockCounterClockwise size={32} className="text-[#DDD]" />
+            <History size={32} className="text-[#DDD]" />
             <p className="text-sm text-[#888]">Chưa xem chữ nào.</p>
             <p className="text-xs text-[#AAA]">Khi bạn xem chữ Hán, nó sẽ xuất hiện ở đây.</p>
           </div>

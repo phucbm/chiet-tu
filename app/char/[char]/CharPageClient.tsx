@@ -1,7 +1,7 @@
 "use client"
 
 import {useEffect, useRef, useState} from 'react'
-import {ArrowLeft} from '@phosphor-icons/react'
+import {ArrowLeft} from 'lucide-react'
 import {useRouter} from 'next/navigation'
 import {useToolBarSlot} from '@/components/shell/ToolBarSlot'
 import {useBottomSheet} from '@/components/shell/BottomSheet'
