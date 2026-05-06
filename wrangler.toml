@@ -1,0 +1,11 @@
+name = "chiet-tu"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[[rules]]
+type = "ESModule"
+globs = ["**/*.js"]
