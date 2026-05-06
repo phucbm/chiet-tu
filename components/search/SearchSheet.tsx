@@ -133,7 +133,7 @@ function SearchSheetContent() {
               }}
               onKeyDown={e => { if (e.key === 'Enter') debouncedSearch.flush() }}
               placeholder="Nhập chữ Hán, pinyin, Hán Việt..."
-              className="flex-1 min-w-0 bg-transparent text-sm outline-none placeholder:text-[#AAA] py-1"
+              className="flex-1 min-w-0 bg-transparent outline-none placeholder:text-[#AAA] py-1"
             />
             {query && (
               <button
