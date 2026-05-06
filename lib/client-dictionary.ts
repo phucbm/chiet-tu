@@ -86,6 +86,14 @@ function matchesPinyin(pinyin: string, q: string): boolean {
   return syllables.some(s => s === q || s.startsWith(q))
 }
 
+function matchesSV(sv: string, q: string): boolean {
+  const qStripped = stripTones(q)
+  return sv.toLowerCase().split(/\s+/).some(s => {
+    const sStripped = stripTones(s)
+    return s === q || s.startsWith(q) || sStripped === qStripped || sStripped.startsWith(qStripped)
+  })
+}
+
 export async function getChar(char: string): Promise<CharEntry | null> {
   const [curated, { map }] = await Promise.all([loadCurated(), loadDict()])
   const c = curated.find(e => e.char === char)
@@ -109,7 +117,7 @@ export async function searchChars(query: string): Promise<SearchResult[]> {
     if (
       entry.char.includes(q) ||
       matchesPinyin(entry.pinyin, qLow) ||
-      entry.sino_vietnamese.toLowerCase().split(/\s+/).some(s => s === qLow || s.startsWith(qLow))
+      matchesSV(entry.sino_vietnamese, qLow)
     ) {
       seen.add(entry.char)
       results.push({ type: 'curated', entry: { ...entry, source: 'repo' } })
@@ -121,7 +129,7 @@ export async function searchChars(query: string): Promise<SearchResult[]> {
     if (
       d.s === q ||
       (d.p && matchesPinyin(d.p, qLow)) ||
-      (d.sv && d.sv.toLowerCase().split(/\s+/).some(s => s === qLow || s.startsWith(qLow)))
+      (d.sv && matchesSV(d.sv, qLow))
     ) {
       if (isCJK(d.s) && (d.s.length === 1 || d.s === q)) {
         seen.add(d.s)
