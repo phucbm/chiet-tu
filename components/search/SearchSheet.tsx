@@ -55,6 +55,7 @@ function SearchSheetContent() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [searched, setSearched] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -65,9 +66,11 @@ function SearchSheetContent() {
   const runSearch = useCallback(async () => {
     const q = query.trim()
     if (!q) return
+    setIsLoading(true)
     const r = await searchChars(q)
     setResults(r)
     setSearched(true)
+    setIsLoading(false)
   }, [query])
 
   const handleSelect = useCallback(
@@ -118,6 +121,7 @@ function SearchSheetContent() {
               onChange={e => {
                 setQuery(e.target.value)
                 setSearched(false)
+                setIsLoading(false)
                 if (!e.target.value) setResults([])
               }}
               onKeyDown={e => { if (e.key === 'Enter') runSearch() }}
@@ -136,7 +140,11 @@ function SearchSheetContent() {
 
           {/* Results */}
           <div className="overflow-y-auto">
-            {searched && results.length === 0 ? (
+            {isLoading ? (
+              <div className="flex justify-center py-8">
+                <span className="size-5 rounded-full border-2 border-[#E0E0DC] border-t-[#888] animate-spin" />
+              </div>
+            ) : searched && results.length === 0 ? (
               <p className="text-sm text-[#888] text-center py-8">Không tìm thấy kết quả.</p>
             ) : (
               <ul>

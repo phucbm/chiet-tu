@@ -1,4 +1,4 @@
-import type {Metadata} from "next"
+import type {Metadata, Viewport} from "next"
 import {Geist} from "next/font/google"
 import "./globals.css"
 import {BottomSheetProvider} from "@/components/shell/BottomSheet"
@@ -7,18 +7,36 @@ import {HeaderSlotProvider, HeaderSlotRenderer} from "@/components/shell/HeaderS
 import {ToolBarSlotProvider} from "@/components/shell/ToolBarSlot";
 import {SearchShortcut} from "@/components/search/SearchSheet";
 import {GlobalToolBarButtons} from "@/components/shell/GlobalToolBarButtons";
+import {SerwistProvider} from "./serwist";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" })
 
+const APP_NAME = "Chiết Tự";
+const APP_DESCRIPTION = "Từ điển mở về nguồn gốc và chiết tự chữ Hán. Curated, cộng đồng đóng góp.";
+
 export const metadata: Metadata = {
+    applicationName: APP_NAME,
     title: "Chiết Tự — Từ điển nguồn gốc chữ Hán",
-    description: "Từ điển mở về nguồn gốc và chiết tự chữ Hán. Curated, cộng đồng đóng góp.",
+    description: APP_DESCRIPTION,
+    icons: { icon: "/icon.png" },
+    manifest: "/manifest.json",
+    appleWebApp: {
+        capable: true,
+        statusBarStyle: "default",
+        title: APP_NAME,
+    },
+    formatDetection: { telephone: false },
+}
+
+export const viewport: Viewport = {
+    themeColor: "#F8F7F5",
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="vi" className={`${geist.variable} h-full antialiased overscroll-none`}>
         <body className="app_body h-dvh bg-[#ECEAE6] md:p-2 flex justify-center overscroll-none">
+        <SerwistProvider swUrl="/sw.js" disable={process.env.NODE_ENV === "development"}>
         <div
             className="app_inner min-h-full overscroll-none
         md:rounded-xl w-full md:max-w-[680px] flex flex-col relative bg-[#F8F7F5] overflow-hidden shadow-lg">
@@ -40,6 +58,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </ToolBarSlotProvider>
             </HeaderSlotProvider>
         </div>
+        </SerwistProvider>
         </body>
         </html>
     )
