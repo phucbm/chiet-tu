@@ -18,6 +18,8 @@ interface DictEntry {
   note?: string
   comps?: CompactComp[]
   related?: string[]
+  hasTrad?: string
+  hasSimp?: string
 }
 
 let _curated: CharEntry[] | null = null
@@ -53,7 +55,7 @@ function dictToCharEntry(d: DictEntry): CharEntry {
     trad: d.t,
     pinyin: d.p ?? '',
     sino_vietnamese: d.sv ?? '',
-    translation: { vi: d.vi ?? '' },
+    vi: d.vi ?? '',
     etymology: {
       note: d.note ?? '',
       components: (d.comps ?? []).map(c => ({
@@ -63,12 +65,11 @@ function dictToCharEntry(d: DictEntry): CharEntry {
         sino_vietnamese: c.sv ?? '',
         translation: c.t ?? '',
       })),
-      examples: [],
       related: d.related ?? [],
     },
-    tags: [],
-    sources: ['dictionary'],
     definitions_en: d.en,
+    hasTrad: d.hasTrad,
+    hasSimp: d.hasSimp,
     source: 'dictionary',
   }
 }

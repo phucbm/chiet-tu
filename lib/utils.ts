@@ -19,7 +19,7 @@ export function charChangeSummary(local: CharEntry, original: CharEntry): CharCh
   if ((local.trad ?? '') !== (original.trad ?? '')) changed.push('phồn thể')
   if ((local.strokes ?? 0) !== (original.strokes ?? 0)) changed.push('số nét')
   if ((local.radical ?? '') !== (original.radical ?? '')) changed.push('bộ thủ')
-  if (local.translation.vi !== original.translation.vi) changed.push('nghĩa')
+  if ((local.vi ?? '') !== (original.vi ?? '')) changed.push('nghĩa')
   if (local.etymology.note !== original.etymology.note) changed.push('chú thích')
   if (local.etymology.components.length !== original.etymology.components.length) {
     changed.push('thành phần')
@@ -30,7 +30,7 @@ export function charChangeSummary(local: CharEntry, original: CharEntry): CharCh
     })
     if (diff) changed.push('thành phần')
   }
-  if (JSON.stringify(local.etymology.examples) !== JSON.stringify(original.etymology.examples))
+  if (JSON.stringify(local.sentences) !== JSON.stringify(original.sentences))
     changed.push('ví dụ')
   if (JSON.stringify(local.etymology.related) !== JSON.stringify(original.etymology.related))
     changed.push('từ liên quan')

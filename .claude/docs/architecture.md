@@ -53,6 +53,11 @@ body (bg: #ECEAE6, full viewport)
 ## Data Structure
 
 ```ts
+interface Sentence {
+  zh: string
+  vi?: string
+}
+
 interface CharEntry {
   char: string              // Han character (simp or trad)
   trad?: string             // legacy traditional field
@@ -62,18 +67,17 @@ interface CharEntry {
   sino_vietnamese: string
   strokes?: number
   radical?: string
-  translation: { vi: string }
+  vi?: string               // Vietnamese meaning (flat, replaces translation.vi)
+  sentences?: Sentence[]    // example words/sentences with optional vi gloss
   etymology: {
     note: string
     components: EtymologyComponent[]
-    examples: string[]
-    related: string[]
+    related: string[]       // related single chars (from chinese-lexicon topWords)
   }
-  tags: string[]
   contributor?: string
-  sources: string[]
+  definitions_en?: string[]
   // runtime-only — stripped before GitHub PR
-  source?: 'repo' | 'local'
+  source?: 'repo' | 'local' | 'dictionary'
   copiedFrom?: string
   createdAt?: number
   updatedAt?: number

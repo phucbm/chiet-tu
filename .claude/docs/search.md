@@ -26,19 +26,21 @@ Both `matchesPinyin` and `matchesSV` use `stripTones()` which normalizes NFD and
 Built by `scripts/build-dictionary.mjs`. Each entry shape (compact):
 ```ts
 {
-  s: string        // the char
-  p?: string       // pinyin
-  sv?: string      // sino-vietnamese
-  t?: string       // traditional form (legacy)
-  hasTrad?: string // this char is simplified; value = trad counterpart
-  hasSimp?: string // this char is traditional; value = simp counterpart
-  en?: string[]    // English definitions
-  vi?: string      // Vietnamese definition (cvdict)
-  note?: string    // etymology note
-  comps?: { c, n, p, sv, t }[]  // components
+  s: string          // the char
+  p?: string         // pinyin
+  sv?: string        // sino-vietnamese
+  t?: string         // traditional form (legacy)
+  hasTrad?: string   // this char is simplified; value = trad counterpart
+  hasSimp?: string   // this char is traditional; value = simp counterpart
+  en?: string[]      // English definitions
+  vi?: string        // Vietnamese definition (cvdict)
+  note?: string      // etymology note
+  comps?: { c, n, p, sv, t }[]   // components
   related?: string[] // topWords (vocabulary collocations, NOT simp/trad)
 }
 ```
+
+Mapped to `CharEntry` via `dictToCharEntry()` in `lib/client-dictionary.ts` and `app/char/[char]/page.tsx`. `hasTrad`/`hasSimp` flow through to `CharEntry`.
 
 ### Build steps
 1. `kVietnamese.json` drives char set — only chars with SV get entries

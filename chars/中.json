@@ -4,9 +4,13 @@
   "sino_vietnamese": "trung",
   "strokes": 4,
   "radical": "丨",
-  "translation": {
-    "vi": "ở giữa, trung tâm, bên trong"
-  },
+  "vi": "ở giữa, trung tâm, bên trong",
+  "sentences": [
+    { "zh": "中国", "vi": "Trung Quốc" },
+    { "zh": "中文", "vi": "tiếng Trung" },
+    { "zh": "中心", "vi": "trung tâm" },
+    { "zh": "居中", "vi": "ở giữa, căn giữa" }
+  ],
   "etymology": {
     "note": "Hình ảnh cây cọc cắm giữa vòng tròn, nghĩa gốc là 'ở giữa'. Sau mở rộng nghĩa thành trung tâm, bên trong.",
     "components": [
@@ -25,10 +29,7 @@
         "translation": "cây cọc xuyên qua giữa"
       }
     ],
-    "examples": ["中国", "中文", "中心", "居中"],
     "related": ["央", "间", "内"]
   },
-  "tags": ["hsk1", "common"],
-  "contributor": "phucbm",
-  "sources": ["chiettu-book", "outlier-linguistics"]
+  "contributor": "phucbm"
 }

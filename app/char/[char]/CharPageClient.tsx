@@ -54,10 +54,10 @@ export function CharPageClient({ char, initialData }: Props) {
     const sinoViet = entry.sino_vietnamese
     const pinyin = entry.pinyin
     const trad = entry.trad
-    const translationVi = entry.translation?.vi
+    const translationVi = entry.vi
     const etymNote = entry.etymology?.note
     const etymComponents = entry.etymology?.components ?? []
-    const examples = entry.etymology?.examples ?? []
+    const sentences = entry.sentences ?? []
     const related = entry.etymology?.related ?? []
     const strokes = entry.strokes
     const radical = entry.radical
@@ -187,14 +187,16 @@ export function CharPageClient({ char, initialData }: Props) {
                     </section>
                 )}
 
-                {/* Examples */}
-                {examples.length > 0 && (
+                {/* Sentences */}
+                {sentences.length > 0 && (
                     <section className="space-y-2">
                         <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">Ví dụ</h2>
-                        <div className="flex flex-wrap gap-1.5">
-                            {examples.map(ex => (
-                                <span key={ex}
-                                      className="text-sm px-2.5 py-1 rounded-lg bg-[#F0F0EC] text-[#0F0F0F]">{ex}</span>
+                        <div className="space-y-1.5">
+                            {sentences.map((s, i) => (
+                                <div key={i} className="flex flex-col gap-0.5 px-3 py-2 bg-[#F0F0EC] rounded-lg">
+                                    <span className="text-sm text-[#0F0F0F]">{s.zh}</span>
+                                    {s.vi && <span className="text-xs text-[#888]">{s.vi}</span>}
+                                </div>
                             ))}
                         </div>
                     </section>
@@ -232,6 +234,10 @@ export function CharPageClient({ char, initialData }: Props) {
                 {curated?.contributor && (
                     <p className="text-xs text-[#BBB]">Contributed by {curated.contributor}</p>
                 )}
+            </div>
+
+            <div className="dev-data hidden text-xs overflow-auto md:block fixed bottom-2 left-2 top-2 rounded-xl bg-white w-[400px]  p-6">
+                <pre className="whitespace-pre-wrap break-all">{JSON.stringify(entry, null, 2)}</pre>
             </div>
         </>
     )

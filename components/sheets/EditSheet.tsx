@@ -5,7 +5,7 @@ import { ArrowCounterClockwise, Plus, Trash } from '@phosphor-icons/react'
 import { pinyin } from 'pinyin-pro'
 import { useBottomSheet } from '@/components/shell/BottomSheet'
 import { useCharStore } from '@/store/useCharStore'
-import type { CharEntry, EtymologyComponent } from '@/lib/types'
+import type { CharEntry, EtymologyComponent, Sentence } from '@/lib/types'
 
 const RAW_BASE = 'https://raw.githubusercontent.com/phucbm/chiet-tu/main'
 const HW_DATA_BASE = 'https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0'
@@ -55,7 +55,7 @@ interface DraftState {
   translationVi: string
   note: string
   components: EtymologyComponent[]
-  examples: string
+  sentences: Sentence[]
   related: string
 }
 
@@ -149,19 +149,19 @@ export function EditSheet({ char }: Props) {
   const [sinoViet, setSinoViet] = useState(draft?.sinoViet ?? char.sino_vietnamese)
   const [strokes, setStrokes] = useState(draft?.strokes ?? String(char.strokes ?? ''))
   const [radical, setRadical] = useState(draft?.radical ?? char.radical ?? '')
-  const [translationVi, setTranslationVi] = useState(draft?.translationVi ?? char.translation.vi)
+  const [translationVi, setTranslationVi] = useState(draft?.translationVi ?? char.vi ?? '')
   const [note, setNote] = useState(draft?.note ?? char.etymology.note)
   const [components, setComponents] = useState<EtymologyComponent[]>(draft?.components ?? char.etymology.components)
-  const [examples, setExamples] = useState(draft?.examples ?? char.etymology.examples.join(', '))
+  const [sentences, setSentences] = useState<Sentence[]>(draft?.sentences ?? char.sentences ?? [])
   const [related, setRelated] = useState(draft?.related ?? char.etymology.related.join(', '))
   const [resetting, setResetting] = useState(false)
   const [fetchingStrokes, setFetchingStrokes] = useState(false)
 
   // Silent auto-save on any change
   useEffect(() => {
-    const state: DraftState = { trad, pinyin: pinyinVal, sinoViet, strokes, radical, translationVi, note, components, examples, related }
+    const state: DraftState = { trad, pinyin: pinyinVal, sinoViet, strokes, radical, translationVi, note, components, sentences, related }
     saveDraft(char.char, state)
-  }, [trad, pinyinVal, sinoViet, strokes, radical, translationVi, note, components, examples, related])
+  }, [trad, pinyinVal, sinoViet, strokes, radical, translationVi, note, components, sentences, related])
 
   async function handleFetchStrokes() {
     if (fetchingStrokes) return
@@ -178,11 +178,11 @@ export function EditSheet({ char }: Props) {
       sino_vietnamese: sinoViet.trim(),
       strokes: strokes ? Number(strokes) : undefined,
       radical: radical.trim() || undefined,
-      translation: { vi: translationVi.trim() },
+      vi: translationVi.trim(),
+      sentences: sentences.filter(s => s.zh.trim()),
       etymology: {
         note: note.trim(),
         components,
-        examples: examples.split(',').map(s => s.trim()).filter(Boolean),
         related: related.split(',').map(s => s.trim()).filter(Boolean),
       },
     }
@@ -347,9 +347,46 @@ export function EditSheet({ char }: Props) {
           </div>
         </div>
 
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-[#888]">Ví dụ (cách nhau bởi dấu phẩy)</label>
-          <input className={inputCls} placeholder="中国, 中文, 中心" value={examples} onChange={e => setExamples(e.target.value)} />
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-medium text-[#888]">Ví dụ ({sentences.length})</label>
+            <button
+              onClick={() => setSentences(prev => [...prev, { zh: '', vi: '' }])}
+              className="flex items-center gap-1 text-xs text-[#0F0F0F] hover:opacity-70 transition-opacity"
+            >
+              <Plus size={12} />
+              Thêm
+            </button>
+          </div>
+          <div className="space-y-2">
+            {sentences.map((s, i) => (
+              <div key={i} className="flex flex-col gap-1.5 p-3 bg-[#F8F7F5] border border-[#E0E0DC] rounded-xl">
+                <div className="flex gap-2">
+                  <input
+                    className={inputCls + ' flex-1'}
+                    placeholder="Ví dụ tiếng Trung"
+                    value={s.zh}
+                    onChange={e => setSentences(prev => prev.map((x, j) => j === i ? { ...x, zh: e.target.value } : x))}
+                  />
+                  <button
+                    onClick={() => setSentences(prev => prev.filter((_, j) => j !== i))}
+                    className="flex items-center justify-center w-9 h-9 shrink-0 rounded-xl text-[#BBB] hover:text-red-500 hover:bg-red-50 transition-colors border border-[#E0E0DC]"
+                  >
+                    <Trash size={14} />
+                  </button>
+                </div>
+                <input
+                  className={inputCls}
+                  placeholder="Nghĩa tiếng Việt (tuỳ chọn)"
+                  value={s.vi ?? ''}
+                  onChange={e => setSentences(prev => prev.map((x, j) => j === i ? { ...x, vi: e.target.value || undefined } : x))}
+                />
+              </div>
+            ))}
+            {sentences.length === 0 && (
+              <p className="text-xs text-[#AAA] text-center py-2">Chưa có ví dụ.</p>
+            )}
+          </div>
         </div>
 
         <div className="space-y-1">

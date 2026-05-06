@@ -6,6 +6,11 @@ export interface EtymologyComponent {
   translation: string
 }
 
+export interface Sentence {
+  zh: string
+  vi?: string
+}
+
 export interface CharEntry {
   char: string
   trad?: string
@@ -15,16 +20,14 @@ export interface CharEntry {
   sino_vietnamese: string
   strokes?: number
   radical?: string
-  translation: { vi: string }
+  vi?: string
+  sentences?: Sentence[]
   etymology: {
     note: string
     components: EtymologyComponent[]
-    examples: string[]
     related: string[]
   }
-  tags: string[]
   contributor?: string
-  sources: string[]
   definitions_en?: string[]
   // runtime/local-only — not persisted in repo JSON files
   source?: 'repo' | 'local' | 'dictionary'

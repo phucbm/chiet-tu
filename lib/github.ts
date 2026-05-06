@@ -58,7 +58,7 @@ function prBody(entry: Partial<CharEntry>, nickname: string): string {
     `**Character:** ${entry.char}${entry.trad ? ` / ${entry.trad}` : ''}`,
     `**Pinyin:** ${entry.pinyin ?? ''}`,
     `**Sino-Vietnamese:** ${entry.sino_vietnamese ?? ''}`,
-    `**Translation (VI):** ${entry.translation?.vi ?? ''}`,
+    `**Translation (VI):** ${entry.vi ?? ''}`,
     '',
     entry.etymology?.note ? `**Etymology note:** ${entry.etymology.note}` : '',
     components ? `**Components:**\n${components}` : '',
