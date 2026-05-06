@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 import { searchChars } from '@/lib/client-dictionary'
 import type { SearchResult } from '@/lib/types'
 import { useRouter } from 'next/navigation'
+import { useDebouncedCallback } from 'use-debounce'
 
 type SearchMode = 'text' | 'draw'
 
@@ -63,15 +64,14 @@ function SearchSheetContent() {
     return () => clearTimeout(t)
   }, [])
 
-  const runSearch = useCallback(async () => {
-    const q = query.trim()
-    if (!q) return
+  const debouncedSearch = useDebouncedCallback(async (q: string) => {
+    if (!q.trim()) return
     setIsLoading(true)
-    const r = await searchChars(q)
+    const r = await searchChars(q.trim())
     setResults(r)
     setSearched(true)
     setIsLoading(false)
-  }, [query])
+  }, 500)
 
   const handleSelect = useCallback(
     (char: string) => {
@@ -83,6 +83,7 @@ function SearchSheetContent() {
 
   const handleCandidateClick = useCallback((hanzi: string) => {
     setQuery(prev => prev + hanzi)
+    setResults([])
     setSearched(false)
     setMode('text')
     setTimeout(() => inputRef.current?.focus(), 50)
@@ -91,7 +92,7 @@ function SearchSheetContent() {
   return (
     <div className="flex flex-col min-h-[75dvh]">
       {/* Mode tabs */}
-      <div className="flex border-b border-[#E0E0DC] px-3 py-2 gap-1 shrink-0">
+      <div className="flex border-b border-[#E0E0DC] px-3 py-2 gap-1 shrink-0 sticky top-0 bg-white">
         {(['text', 'draw'] as SearchMode[]).map(m => (
           <button
             key={m}
@@ -112,7 +113,7 @@ function SearchSheetContent() {
       {mode === 'text' ? (
         <>
           {/* Search input */}
-          <div className="flex items-center gap-2 px-5 py-3 border-b border-[#E0E0DC] shrink-0">
+          <div className="flex items-center gap-2 px-5 py-3 border-b border-[#E0E0DC] shrink-0 sticky top-0 bg-background">
             <Search size={16} className="text-[#888] shrink-0" />
             <input
               ref={inputRef}
@@ -120,11 +121,17 @@ function SearchSheetContent() {
               value={query}
               onChange={e => {
                 setQuery(e.target.value)
+                setResults([])
                 setSearched(false)
-                setIsLoading(false)
-                if (!e.target.value) setResults([])
+                if (e.target.value.trim()) {
+                  setIsLoading(true)
+                  debouncedSearch(e.target.value)
+                } else {
+                  setIsLoading(false)
+                  debouncedSearch.cancel()
+                }
               }}
-              onKeyDown={e => { if (e.key === 'Enter') runSearch() }}
+              onKeyDown={e => { if (e.key === 'Enter') debouncedSearch.flush() }}
               placeholder="Nhập chữ Hán, pinyin, Hán Việt..."
               className="flex-1 min-w-0 bg-transparent text-sm outline-none placeholder:text-[#AAA] py-1"
             />
