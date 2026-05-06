@@ -17,6 +17,7 @@ import {StrokeBox} from "@/components/word/StrokeBox";
 interface Props {
     char: string
     initialData: CharEntry
+    knownLinkedChars: Set<string>
 }
 
 function ClonePrompt({ onClone }: { onClone: () => void }) {
@@ -36,10 +37,40 @@ function ClonePrompt({ onClone }: { onClone: () => void }) {
     )
 }
 
-export function CharPageClient({ char, initialData }: Props) {
+function CharLink({ c, known, onUnknown, className }: { c: string; known: boolean; onUnknown: () => void; className?: string }) {
+    if (known) return <a href={`/char/${encodeURIComponent(c)}`} className={className}>{c}</a>
+    return (
+        <span onClick={onUnknown} className={`cursor-pointer ${className ?? ''}`}>{c}</span>
+    )
+}
+
+function NewCharPrompt({ c, onConfirm }: { c: string; onConfirm: () => void }) {
+    const {close} = useBottomSheet()
+    return (
+        <div className="px-5 pb-6 space-y-4">
+            <p className="text-sm text-[#888] leading-relaxed">
+                Chữ <span className="text-[#0F0F0F] font-medium">{c}</span> chưa có dữ liệu. Lưu về thiết bị để bắt đầu đóng góp?
+            </p>
+            <div className="flex flex-col gap-2">
+                <button
+                    onClick={onConfirm}
+                    className="w-full py-3.5 bg-[#0F0F0F] rounded-xl text-sm font-semibold text-white hover:bg-[#2a2a2a] transition-colors flex items-center justify-center gap-2"
+                >
+                    <CopySimple size={15}/>
+                    Lưu về thiết bị
+                </button>
+                <button onClick={close} className="w-full py-3 text-sm text-[#888] hover:text-[#0F0F0F] transition-colors">
+                    Huỷ
+                </button>
+            </div>
+        </div>
+    )
+}
+
+export function CharPageClient({ char, initialData, knownLinkedChars }: Props) {
     const router = useRouter()
     const {open} = useBottomSheet()
-    const {findLocal, cloneFromRepo, cloneFromGen} = useCharStore()
+    const {findLocal, cloneFromRepo, cloneFromGen, addChar} = useCharStore()
     const {addView} = useCharHistory()
 
     const localChar = findLocal(char)
@@ -75,12 +106,35 @@ export function CharPageClient({ char, initialData }: Props) {
                     if (curated) {
                         clone = cloneFromRepo(curated)
                     } else {
-                        clone = cloneFromGen({char, sino_vietnamese: [sinoViet], source: 'kVietnamese'})
+                        clone = cloneFromGen(initialData)
                     }
                     open(<EditSheet char={clone}/>, `Chỉnh sửa ${char}`)
                 }}
             />,
             `Chỉnh sửa ${char}`
+        )
+    }
+
+    function openUnknown(c: string) {
+        open(
+            <NewCharPrompt
+                c={c}
+                onConfirm={() => {
+                    const blank: CharEntry = {
+                        char: c,
+                        pinyin: '',
+                        sino_vietnamese: '',
+                        vi: '',
+                        etymology: {note: '', components: [], related: []},
+                        source: 'local',
+                        createdAt: Date.now(),
+                        editedFields: [],
+                    }
+                    addChar(blank)
+                    open(<EditSheet char={blank}/>, `Chỉnh sửa ${c}`)
+                }}
+            />,
+            `Thêm chữ ${c}`
         )
     }
 
@@ -112,7 +166,9 @@ export function CharPageClient({ char, initialData }: Props) {
                     <Dot className="text-muted-foreground"/>
                     <span className="text-green-500">{entry.sino_vietnamese}</span>
                 </div>
-                <div className="col-span-4"></div>
+                <div className="col-span-4 flex justify-end text-sm">
+                    {entry.source}
+                </div>
             </h1>
         </>
     )
@@ -138,6 +194,14 @@ export function CharPageClient({ char, initialData }: Props) {
                     <section className="space-y-1.5">
                         <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">Nghĩa</h2>
                         <p className="text-sm text-[#0F0F0F]">{translationVi}</p>
+                    </section>
+                )}
+
+                {/* English definitions */}
+                {definitionsEn?.length && (
+                    <section className="space-y-1.5">
+                        <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">English</h2>
+                        <p className="text-sm text-[#666]">{definitionsEn.slice(0, 3).join(' · ')}</p>
                     </section>
                 )}
 
@@ -168,7 +232,7 @@ export function CharPageClient({ char, initialData }: Props) {
                             {etymComponents.map((c, i) => (
                                 <div key={i}
                                      className="flex items-start gap-3 px-3 py-2.5 bg-[#F8F7F5] border border-[#E8E8E4] rounded-xl">
-                                    <span className="text-2xl leading-none shrink-0 w-8 text-center">{c.char}</span>
+                                    <CharLink c={c.char} known={knownLinkedChars.has(c.char)} onUnknown={() => openUnknown(c.char)} className="text-2xl leading-none shrink-0 w-8 text-center hover:text-blue-500 transition-colors"/>
                                     <div className="flex flex-col min-w-0">
                                         <div className="flex items-center gap-1.5 flex-wrap">
                                             {c.sino_vietnamese &&
@@ -208,8 +272,8 @@ export function CharPageClient({ char, initialData }: Props) {
                         <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">Từ liên quan</h2>
                         <div className="flex flex-wrap gap-1.5">
                             {related.map(r => (
-                                <span key={r}
-                                      className="text-sm px-2.5 py-1 rounded-lg bg-white border border-[#E0E0DC] text-[#0F0F0F]">{r}</span>
+                                <CharLink key={r} c={r} known={knownLinkedChars.has(r)} onUnknown={() => openUnknown(r)}
+                                      className="text-sm px-2.5 py-1 rounded-lg bg-white border border-[#E0E0DC] text-[#0F0F0F] hover:border-[#0F0F0F] transition-colors"/>
                             ))}
                         </div>
                     </section>
@@ -219,15 +283,7 @@ export function CharPageClient({ char, initialData }: Props) {
                 {radical && (
                     <section className="space-y-1.5">
                         <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">Bộ thủ</h2>
-                        <span className="text-2xl">{radical}</span>
-                    </section>
-                )}
-
-                {/* English definitions */}
-                {definitionsEn?.length && (
-                    <section className="space-y-1.5">
-                        <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider">English</h2>
-                        <p className="text-sm text-[#666]">{definitionsEn.slice(0, 3).join(' · ')}</p>
+                        <CharLink c={radical} known={knownLinkedChars.has(radical)} onUnknown={() => openUnknown(radical)} className="text-2xl hover:text-blue-500 transition-colors"/>
                     </section>
                 )}
 

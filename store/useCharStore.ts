@@ -3,7 +3,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { nanoid } from 'nanoid'
-import type { CharEntry, ExternalChar } from '@/lib/types'
+import type { CharEntry } from '@/lib/types'
 
 interface CharStore {
   chars: CharEntry[]
@@ -11,7 +11,7 @@ interface CharStore {
   updateChar: (char: string, updates: Partial<CharEntry>) => void
   deleteChar: (char: string, localId: string) => void
   cloneFromRepo: (entry: CharEntry) => CharEntry
-  cloneFromGen: (entry: ExternalChar) => CharEntry
+  cloneFromGen: (entry: CharEntry) => CharEntry
   findLocal: (char: string) => CharEntry | undefined
 }
 
@@ -25,11 +25,14 @@ export const useCharStore = create<CharStore>()(
 
       updateChar: (char, updates) =>
         set((s) => ({
-          chars: s.chars.map((c) =>
-            c.char === char && c.source === 'local'
-              ? { ...c, ...updates, updatedAt: Date.now() }
-              : c
-          ),
+          chars: s.chars.map((c) => {
+            if (c.char !== char || c.source !== 'local') return c
+            const newEdited = Array.from(new Set([
+              ...(c.editedFields ?? []),
+              ...Object.keys(updates).filter(k => !['source','copiedFrom','createdAt','updatedAt','editedFields'].includes(k)),
+            ]))
+            return { ...c, ...updates, updatedAt: Date.now(), editedFields: newEdited }
+          }),
         })),
 
       deleteChar: (_char, localId) =>
@@ -41,6 +44,7 @@ export const useCharStore = create<CharStore>()(
           source: 'local',
           copiedFrom: entry.char,
           createdAt: Date.now(),
+          editedFields: [],
         }
         set((s) => ({ chars: [clone, ...s.chars] }))
         return clone
@@ -48,14 +52,11 @@ export const useCharStore = create<CharStore>()(
 
       cloneFromGen: (entry) => {
         const clone: CharEntry = {
-          char: entry.char,
-          pinyin: '',
-          sino_vietnamese: entry.sino_vietnamese[0] ?? '',
-          vi: '',
-          etymology: { note: '', components: [], related: [] },
+          ...entry,
           source: 'local',
           copiedFrom: `gen:${entry.char}`,
           createdAt: Date.now(),
+          editedFields: [],
         }
         set((s) => ({ chars: [clone, ...s.chars] }))
         return clone

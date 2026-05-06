@@ -34,12 +34,7 @@ export interface CharEntry {
   copiedFrom?: string
   createdAt?: number
   updatedAt?: number
-}
-
-export interface ExternalChar {
-  char: string
-  sino_vietnamese: string[]
-  source: 'kVietnamese'
+  editedFields?: string[]
 }
 
 export type SearchResult = { type: 'curated'; entry: CharEntry }

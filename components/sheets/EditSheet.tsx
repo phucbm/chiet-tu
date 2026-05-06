@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { ArrowCounterClockwise, Plus, Trash } from '@phosphor-icons/react'
 import { pinyin } from 'pinyin-pro'
+import { useRouter } from 'next/navigation'
 import { useBottomSheet } from '@/components/shell/BottomSheet'
 import { useCharStore } from '@/store/useCharStore'
 import type { CharEntry, EtymologyComponent, Sentence } from '@/lib/types'
@@ -141,6 +142,7 @@ function ComponentRow({
 export function EditSheet({ char }: Props) {
   const { updateChar, deleteChar } = useCharStore()
   const { closeAll } = useBottomSheet()
+  const router = useRouter()
 
   const draft = loadDraft(char.char)
 
@@ -212,6 +214,7 @@ export function EditSheet({ char }: Props) {
     deleteChar(char.char, String(char.createdAt ?? 0))
     clearDraft(char.char)
     closeAll()
+    router.push('/')
   }
 
   function addComponent() {

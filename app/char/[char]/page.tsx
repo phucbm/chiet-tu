@@ -95,5 +95,15 @@ export default async function CharPage({ params }: Props) {
     ? { ...curatedEntry, source: 'repo' }
     : dictToCharEntry(dictEntry!)
 
-  return <CharPageClient char={decoded} initialData={initialData} />
+  // Collect all chars referenced in this entry
+  const linkedChars = [
+    ...(initialData.etymology?.components ?? []).map(c => c.char),
+    ...(initialData.etymology?.related ?? []),
+    ...(initialData.radical ? [initialData.radical] : []),
+  ]
+  const knownLinkedChars = new Set(
+    linkedChars.filter(c => dictMap.has(c) || curated.some(e => e.char === c))
+  )
+
+  return <CharPageClient char={decoded} initialData={initialData} knownLinkedChars={knownLinkedChars} />
 }
