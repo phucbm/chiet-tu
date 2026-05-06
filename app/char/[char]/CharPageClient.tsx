@@ -9,9 +9,10 @@ import {EditSheet} from '@/components/sheets/EditSheet'
 import {ContributeSheet} from '@/components/contribute/ContributeSheet'
 import {useCharStore} from '@/store/useCharStore'
 import type {CharEntry} from '@/lib/types'
-import {WordInfoBox} from "@/components/word/WordInfoBox";
 import {useCharHistory} from "@/hooks/useCharHistory";
 import {useHeaderSlot} from "@/components/shell/HeaderSlot";
+import {Dot} from "lucide-react";
+import {StrokeBox} from "@/components/word/StrokeBox";
 
 interface Props {
     char: string
@@ -101,19 +102,35 @@ export function CharPageClient({ char, initialData }: Props) {
 
     useHeaderSlot(
         <>
-            <h1 className="text-xl tracking-tight">
-                <span>Chiết Tự:</span>
-                <span>{entry.sino_vietnamese}</span>
-                <span>{entry.pinyin}</span>
+            <h1 className="text-xl tracking-tight grid grid-cols-12">
+                <div className="col-span-4">Chiết Tự</div>
+                {/* Bính âm / Hán Việt */}
+                <div className="col-span-4 flex justify-center items-center gap-1">
+                    <span>{entry.char}</span>
+                    <Dot className="text-muted-foreground"/>
+                    <span className="text-blue-500">{entry.pinyin}</span>
+                    <Dot className="text-muted-foreground"/>
+                    <span className="text-green-500">{entry.sino_vietnamese}</span>
+                </div>
+                <div className="col-span-4"></div>
             </h1>
         </>
     )
+
+    const showTrad = entry.trad && entry.trad !== entry.char;
+
 
     return (
         <>
             <div className="char-page__content space-y-6">
                 <div className="word-stroke grid gap-4" style={{gridTemplateColumns: "1fr"}}>
-                    <WordInfoBox entry={entry}/>
+                    {/* Stroke boxes */}
+                    <div className="flex flex-wrap justify-evenly gap-4 mb-5">
+                        <StrokeBox char={entry.char} simp={entry.char} trad={entry.trad ?? entry.char}/>
+                        {showTrad &&
+                            <StrokeBox char={entry.trad!} simp={entry.char} trad={entry.trad ?? entry.char}
+                                       defaultTrad/>}
+                    </div>
                 </div>
 
                 {/* Translation */}
