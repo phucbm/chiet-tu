@@ -34,11 +34,11 @@ function getSV(char, trad) {
 function buildRecord(char, lex, sv) {
   const trad = lex?.trad !== char ? lex?.trad : undefined
   const vi = cvdictRaw[char]?.vi || undefined
-  const en = lex?.definitions?.length ? lex.definitions.slice(0, 5) : undefined
+  const en = lex?.definitions?.length ? lex.definitions : undefined
   const note = lex?.simpEtymology?.notes || undefined
   const related = lex?.statistics?.topWords
-    ?.filter(w => w.word !== char && isSingleCJK(w.word))
-    .slice(0, 8)
+    ?.filter(w => w.word !== char && /\p{Script=Han}/u.test(w.word))
+    .slice(0, 10)
     .map(w => w.word)
   const comps = (lex?.simpEtymology?.components ?? [])
     .filter(c => c.char && isSingleCJK(c.char))
@@ -65,13 +65,13 @@ function buildRecord(char, lex, sv) {
   return record
 }
 
-// ─── Step 1+2: Build entries from kVietnamese, enrich with chinese-lexicon ──
+// ─── Step 1+2: Build entries from cvdict (primary), enrich with kViet + lexicon ──
 
-console.log('\n[2/3] Building entries from kVietnamese + chinese-lexicon...')
+console.log('\n[2/3] Building entries from cvdict + chinese-lexicon...')
 const entries = []
 const byChar = new Map()
 
-for (const char of Object.keys(kVietRaw)) {
+for (const char of Object.keys(cvdictRaw)) {
   if (!isSingleCJK(char)) continue
   const lexEntries = getEntries(char)
   const lex = lexEntries?.[0]
@@ -81,7 +81,7 @@ for (const char of Object.keys(kVietRaw)) {
   byChar.set(char, record)
 }
 
-console.log(`  Built ${entries.length} entries from kVietnamese`)
+console.log(`  Built ${entries.length} entries from cvdict`)
 
 // ─── Step 3: Simp/trad pass ──────────────────────────────────────────────────
 
