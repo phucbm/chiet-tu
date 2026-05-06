@@ -103,61 +103,66 @@ export function StrokeBox({char: singleChar, simp, trad, defaultTrad = false, on
     }, [character]);
 
     return (
-        <div className="rounded-lg shadow bg-white flex flex-col items-center gap-3 relative">
-            <div className="absolute top-1 right-1 z-20 flex items-center justify-end w-full">
-                <button
-                    type="button"
-                    title="Xem lại"
-                    onClick={() => writerRef.current?.animateCharacter()}
-                    className={cn("p-1 rounded hover:bg-background/50 opacity-30",
-                        !dataAvailable && "invisible"
-                    )}
-                >
-                    <RotateCcw className="h-3.5 w-3.5 opacity-60 hover:opacity-100"/>
-                </button>
-            </div>
-            <div className="relative" style={{width: 140, height: 140}}>
-                <svg className="absolute inset-0 w-full h-full">
-                    <defs>
-                        <pattern id={`grid-${character}`} width="46.67" height="46.67" patternUnits="userSpaceOnUse">
-                            <path d="M 46.67 0 L 0 0 0 46.67" fill="none" stroke="#d1d5db" strokeWidth="0.5"/>
-                        </pattern>
-                    </defs>
-                    <rect width="140" height="140" fill={`url(#grid-${character})`}/>
-                    <line x1="70" y1="0" x2="70" y2="140" stroke="#d1d5db" strokeWidth="0.75"/>
-                    <line x1="0" y1="70" x2="140" y2="70" stroke="#d1d5db" strokeWidth="0.75"/>
-                </svg>
-                <div
-                    ref={containerRef}
-                    className="absolute inset-0"
-                    style={{width: 140, height: 140}}
-                    aria-label={`Hoạt ảnh nét chữ: ${character}`}
-                >
-                    {loading && (
-                        <div className="rounded border-2 border-dashed border-muted animate-pulse font-chinese text-6xl text-muted-foreground/30">
-                            {character}
+        <div>
+            <div className="rounded-lg overflow-hidden shadow bg-white flex flex-col items-center gap-3 relative">
+                {/*redraw*/}
+                {
+                    dataAvailable && (
+                        <div className="absolute top-1 right-1 z-20 flex items-center justify-end w-full">
+                            <button
+                                type="button"
+                                title="Xem lại"
+                                onClick={() => writerRef.current?.animateCharacter()}
+                                className={cn("p-1 rounded hover:bg-background/50 opacity-30")}
+                            >
+                                <RotateCcw className="h-3.5 w-3.5 opacity-60 hover:opacity-100"/>
+                            </button>
                         </div>
-                    )}
-                    {!loading && !dataAvailable && (
-                        <span className="font-chinese text-6xl leading-none select-all text-muted-foreground/50">
-                            {character}
-                        </span>
-                    )}
+                    )
+                }
+                <div className="relative" style={{width: 140, height: 140}}>
+                    {/*draw grid*/}
+                    <svg
+                        className="stroke-draw-grid absolute inset-0 w-full h-full"
+                        viewBox="0 0 140 140"
+                        preserveAspectRatio="xMidYMid meet"
+                    >
+                        <line className="stroke-draw-grid__line--vertical-1 opacity-40" x1="35" y1="0" x2="35" y2="140" stroke="#d1d5db" strokeWidth="0.75"/>
+                        <line className="stroke-draw-grid__line--vertical-2" x1="70" y1="0" x2="70" y2="140" stroke="#d1d5db" strokeWidth="0.75"/>
+                        <line className="stroke-draw-grid__line--vertical-3 opacity-40" x1="105" y1="0" x2="105" y2="140" stroke="#d1d5db" strokeWidth="0.75"/>
+
+                        <line className="stroke-draw-grid__line--horizontal-1 opacity-40" x1="0" y1="35" x2="140" y2="35" stroke="#d1d5db" strokeWidth="0.75"/>
+                        <line className="stroke-draw-grid__line--horizontal-2" x1="0" y1="70" x2="140" y2="70" stroke="#d1d5db" strokeWidth="0.75"/>
+                        <line className="stroke-draw-grid__line--horizontal-3 opacity-40" x1="0" y1="105" x2="140" y2="105" stroke="#d1d5db" strokeWidth="0.75"/>
+                    </svg>
+                    {/*canvas*/}
+                    <div
+                        ref={containerRef}
+                        className="absolute inset-0 size-full flex justify-center items-center"
+                        style={{width: 140, height: 140}}
+                        aria-label={`Hoạt ảnh nét chữ: ${character}`}
+                    >
+                        {loading || !dataAvailable && (
+                            <div
+                                className="absolute inset-0 size-full flex justify-center items-center font-chinese md:text-8xl text-6xl">
+                                {character}
+                            </div>
+                        )}
+
+                    </div>
                 </div>
             </div>
-            {!dataAvailable && (
-            <div className="flex items-center gap-2">
-        <span className="text-xs text-muted-foreground">
-          {useTrad ? "Phồn thể" : "Giản thể"}
-        </span>
+            <div className="flex items-center justify-center text-center gap-2 mt-2">
+                    <span className="text-sm text-muted-foreground">
+                      {useTrad ? "Phồn thể" : "Giản thể"}
+                    </span>
                 {!singleChar && (
-                <Switch
-                    checked={useTrad}
-                    onCheckedChange={setUseTrad}
-                />
+                    <Switch
+                        checked={useTrad}
+                        onCheckedChange={setUseTrad}
+                    />
                 )}
             </div>
-            )}
         </div>
     );
 }
