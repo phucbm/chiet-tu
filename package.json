@@ -5,10 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:cf": "opennextjs-cloudflare build",
-    "preview": "opennextjs-cloudflare preview",
     "start": "next start",
-    "deploy": "opennextjs-cloudflare deploy",
     "lint": "eslint",
     "build-dictionary": "node scripts/build-dictionary.mjs",
     "prebuild": "node scripts/build-index.mjs",
@@ -38,7 +35,6 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
-    "@opennextjs/cloudflare": "^1.19.6",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -46,7 +42,6 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "tailwindcss": "^4",
-    "typescript": "^5",
-    "wrangler": "^4.88.0"
+    "typescript": "^5"
   }
 }

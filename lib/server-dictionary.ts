@@ -1,4 +1,6 @@
 import 'server-only'
+import { readFile } from 'fs/promises'
+import { join } from 'path'
 import type { CharEntry } from './types'
 
 export interface DictEntry {
@@ -15,21 +17,14 @@ export interface DictEntry {
   hasSimp?: string
 }
 
-// CF Pages sets CF_PAGES_URL at runtime; fallback for local dev
-const BASE_URL = (
-  process.env.CF_PAGES_URL ??
-  process.env.NEXT_PUBLIC_BASE_URL ??
-  'http://localhost:3000'
-).replace(/\/$/, '')
-
 let _dict: DictEntry[] | null = null
 let _dictMap: Map<string, DictEntry> | null = null
 let _curated: CharEntry[] | null = null
 
 async function loadDict(): Promise<{ list: DictEntry[]; map: Map<string, DictEntry> }> {
   if (_dict && _dictMap) return { list: _dict, map: _dictMap }
-  const r = await fetch(`${BASE_URL}/data/dictionary.json`)
-  _dict = await r.json()
+  const raw = await readFile(join(process.cwd(), 'public', 'data', 'dictionary.json'), 'utf-8')
+  _dict = JSON.parse(raw)
   _dictMap = new Map(_dict!.map(e => [e.s, e]))
   return { list: _dict!, map: _dictMap! }
 }
@@ -37,8 +32,8 @@ async function loadDict(): Promise<{ list: DictEntry[]; map: Map<string, DictEnt
 async function loadCurated(): Promise<CharEntry[]> {
   if (_curated) return _curated
   try {
-    const r = await fetch(`${BASE_URL}/chars/index.json`)
-    _curated = await r.json()
+    const raw = await readFile(join(process.cwd(), 'public', 'chars', 'index.json'), 'utf-8')
+    _curated = JSON.parse(raw)
   } catch {
     _curated = []
   }
@@ -68,11 +63,6 @@ export function dictToCharEntry(d: DictEntry): CharEntry {
     hasSimp: d.hasSimp,
     source: 'dictionary',
   }
-}
-
-export async function getDictMap(): Promise<Map<string, DictEntry>> {
-  const { map } = await loadDict()
-  return map
 }
 
 export async function loadSources(): Promise<{ curated: CharEntry[]; dictMap: Map<string, DictEntry> }> {
