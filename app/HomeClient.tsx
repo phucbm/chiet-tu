@@ -32,8 +32,8 @@ export function HomeClient() {
         <div className="content-home flex-1 flex flex-col relative">
 
             <div className="home__content pb-28 space-y-6">
-                {/* My Characters */}
-                {localChars.length > 0 && (
+                {/* My Characters — HIDDEN: edit feature temporarily disabled */}
+                {/* {localChars.length > 0 && (
                     <section>
                         <h2 className="text-xs font-semibold text-[#888] uppercase tracking-wider mb-3 px-1">
                             Của tôi
@@ -48,7 +48,7 @@ export function HomeClient() {
                             ))}
                         </div>
                     </section>
-                )}
+                )} */}
 
                 {/* All Characters */}
                 <section>

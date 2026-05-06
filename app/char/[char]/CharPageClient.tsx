@@ -1,28 +1,25 @@
 "use client"
 
-import { useEffect, useRef, useState } from 'react'
-import { ArrowLeft, CopySimple, GitPullRequest } from '@phosphor-icons/react'
-import { useRouter } from 'next/navigation'
-import { useToolBarSlot } from '@/components/shell/ToolBarSlot'
-import { useBottomSheet } from '@/components/shell/BottomSheet'
-import { ContributeSheet } from '@/components/contribute/ContributeSheet'
-import { useCharStore } from '@/store/useCharStore'
-import type { CharEntry, EtymologyComponent, Sentence } from '@/lib/types'
-import { useCharHistory } from "@/hooks/useCharHistory"
-import { useHeaderSlot } from "@/components/shell/HeaderSlot"
-import { Dot } from "lucide-react"
-import { StrokeBox } from "@/components/word/StrokeBox"
-import { CharLink } from './_components/CharLink'
-import { ClonePrompt } from './_components/ClonePrompt'
-import { NewCharPrompt } from './_components/NewCharPrompt'
-import { DangerZone } from './_components/DangerZone'
-import { MeaningSection } from './_components/MeaningSection'
-import { PronunciationSection } from './_components/PronunciationSection'
-import { CharMetaSection } from './_components/CharMetaSection'
-import { EtymologySection } from './_components/EtymologySection'
-import { ComponentsSection } from './_components/ComponentsSection'
-import { ExamplesSection } from './_components/ExamplesSection'
-import { RelatedSection } from './_components/RelatedSection'
+import {useEffect, useRef, useState} from 'react'
+import {ArrowLeft} from '@phosphor-icons/react'
+import {useRouter} from 'next/navigation'
+import {useToolBarSlot} from '@/components/shell/ToolBarSlot'
+import {useBottomSheet} from '@/components/shell/BottomSheet'
+import {ContributeSheet} from '@/components/contribute/ContributeSheet'
+import {useCharStore} from '@/store/useCharStore'
+import type {CharEntry, EtymologyComponent, Sentence} from '@/lib/types'
+import {useCharHistory} from "@/hooks/useCharHistory"
+import {useHeaderSlot} from "@/components/shell/HeaderSlot"
+import {Dot} from "lucide-react"
+import {StrokeBox} from "@/components/word/StrokeBox"
+import {CharLink} from './_components/CharLink'
+import {ClonePrompt} from './_components/ClonePrompt'
+import {NewCharPrompt} from './_components/NewCharPrompt'
+import {DangerZone} from './_components/DangerZone'
+import {MeaningSection} from './_components/MeaningSection'
+import {EtymologySection} from './_components/EtymologySection'
+import {ComponentsSection} from './_components/ComponentsSection'
+import {RelatedSection} from './_components/RelatedSection'
 
 const RAW_BASE = 'https://raw.githubusercontent.com/phucbm/chiet-tu/main'
 
@@ -169,10 +166,11 @@ export function CharPageClient({ char, initialData, knownLinkedChars }: Props) {
 
     useToolBarSlot([
         { icon: <ArrowLeft size={20}/>, label: 'Back', position: 'left', onClick: () => router.push('/') },
-        ...(isLocal
-            ? [{ icon: <GitPullRequest size={20}/>, label: 'Contribute', position: 'right' as const, onClick: openContribute }]
-            : [{ icon: <CopySimple size={20}/>, label: 'Edit', position: 'right' as const, onClick: openEdit }]
-        ),
+        // HIDDEN: edit/contribute buttons temporarily disabled
+        // ...(isLocal
+        //     ? [{ icon: <GitPullRequest size={20}/>, label: 'Contribute', position: 'right' as const, onClick: openContribute }]
+        //     : [{ icon: <CopySimple size={20}/>, label: 'Edit', position: 'right' as const, onClick: openEdit }]
+        // ),
     ])
 
     useHeaderSlot(
@@ -185,7 +183,7 @@ export function CharPageClient({ char, initialData, knownLinkedChars }: Props) {
                 <Dot className="text-muted-foreground"/>
                 <span className="text-green-500">{entry.sino_vietnamese}</span>
             </div>
-            <div className="col-span-4 flex justify-end text-sm">{entry.source}</div>
+            <div className="col-span-4 flex justify-end text-sm"></div>
         </h1>
     )
 
@@ -221,17 +219,17 @@ export function CharPageClient({ char, initialData, knownLinkedChars }: Props) {
                     </section>
                 ) : null}
 
-                <PronunciationSection {...sp('pronunciation')}
-                    pinyinVal={pinyinVal} sinoViet={sinoViet}
-                    onPinyinChange={setPinyinVal} onSinoVietChange={setSinoViet}
-                    displayPinyin={dPinyin} displaySinoViet={dSinoViet}
-                />
+                {/*<PronunciationSection {...sp('pronunciation')}*/}
+                {/*    pinyinVal={pinyinVal} sinoViet={sinoViet}*/}
+                {/*    onPinyinChange={setPinyinVal} onSinoVietChange={setSinoViet}*/}
+                {/*    displayPinyin={dPinyin} displaySinoViet={dSinoViet}*/}
+                {/*/>*/}
 
-                <CharMetaSection {...sp('char-meta')}
-                    trad={trad} radical={radical}
-                    onTradChange={setTrad} onRadicalChange={setRadical}
-                    displayTrad={dTrad} displayRadical={dRadical}
-                />
+                {/*<CharMetaSection {...sp('char-meta')}*/}
+                {/*    trad={trad} radical={radical}*/}
+                {/*    onTradChange={setTrad} onRadicalChange={setRadical}*/}
+                {/*    displayTrad={dTrad} displayRadical={dRadical}*/}
+                {/*/>*/}
 
                 <EtymologySection {...sp('etym-note')} value={note} onChange={setNote} displayValue={dNote}/>
 
@@ -241,10 +239,10 @@ export function CharPageClient({ char, initialData, knownLinkedChars }: Props) {
                     knownLinkedChars={knownLinkedChars} onUnknown={openUnknown}
                 />
 
-                <ExamplesSection {...sp('sentences')}
-                    sentences={sentences} onSentencesChange={setSentences}
-                    displaySentences={dSentences}
-                />
+                {/*<ExamplesSection {...sp('sentences')}*/}
+                {/*    sentences={sentences} onSentencesChange={setSentences}*/}
+                {/*    displaySentences={dSentences}*/}
+                {/*/>*/}
 
                 <RelatedSection {...sp('related')}
                     related={related} onRelatedChange={setRelated}
@@ -268,7 +266,8 @@ export function CharPageClient({ char, initialData, knownLinkedChars }: Props) {
                 )}
             </div>
 
-            <div className="dev-data hidden text-xs overflow-auto md:block fixed bottom-2 left-2 top-2 rounded-xl bg-white w-[400px] p-6">
+            <div
+                className="dev-data hidden text-xs overflow-auto 2xl:block fixed bottom-2 left-2 top-2 rounded-xl bg-white w-[400px] p-6">
                 <pre className="whitespace-pre-wrap break-all">{JSON.stringify(entry, null, 2)}</pre>
             </div>
         </>
